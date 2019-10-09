@@ -1,0 +1,54 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="Jan Houzvicka" id="01">
+        <createTable remarks="Used to store user's information"
+                     tableName="users">
+            <column name="id" type="int">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(100)"/>
+            <column name="password" type="varchar(100)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="Jan Houzvicka" id="16">
+        <addAutoIncrement columnDataType="int"
+                          columnName="id"
+                          incrementBy="1"
+                          startWith="1"
+                          tableName="users"/>
+    </changeSet>
+
+    <changeSet author="Jan Houzvicka" id="02">
+        <insert tableName="users">
+            <column name="first_name" value="Jan"/>
+            <column name="last_name" value="Houzvicka"/>
+            <column name="email" value="st46567@upce.cz"/>
+            <column name="password" value="$2a$12$Tfq7226wqfr6r9j7KJ2omu0TQVP6KhQcFi0Dffa.nUPx1eMw1ybTe"/>
+        </insert>
+    </changeSet>
+
+    <changeSet author="Jan Houzvicka" id="10">
+        <insert tableName="users">
+            <column name="first_name" value="Test"/>
+            <column name="last_name" value="Test"/>
+            <column name="email" value="test@test.cz"/>
+            <column name="password" value="$2a$12$TNH.f4YLpJgCVduQPUejUOuIifkJ5T7DjINwgslGI5s4u7.Plm6d."/>
+        </insert>
+    </changeSet>
+
+    <!--<changeSet id="09" author="Tomas Kodym">
+        <sql>ALTER TABLE users CONVERT TO CHARACTER SET UTF8;</sql>
+    </changeSet>-->
+
+</databaseChangeLog>

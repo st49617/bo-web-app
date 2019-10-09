@@ -1,0 +1,41 @@
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <property name="autoIncrement" value="true" dbms="mysql"/>
+
+    <changeSet author="Tomas Kodym" id="03">
+
+        <createTable remarks="Used to store information about loaded items"
+                     tableName="item">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="item_name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="item_quantity" type="double">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="item_price" type="double">
+                <constraints nullable="false"/>
+
+            </column>
+            <column name="item_tax" type="int">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="supplier_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!--<changeSet id="06" author="Tomas Kodym">
+        <sql>ALTER TABLE item CONVERT TO CHARACTER SET UTF8;</sql>
+    </changeSet>-->
+
+
+</databaseChangeLog>

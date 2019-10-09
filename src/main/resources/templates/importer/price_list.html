@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{fragments/layout.html}" lang="cs">
+<head>
+    <title>Import</title>
+
+</head>
+<body>
+
+<div layout:fragment="content" class="card card-header mx-auto mt-5" align="center">
+    <h1>Please upload your price list</h1>
+
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="file" id="input-file-now" class="file-upload"/><br/><br/>
+        <select type="cmb_value" name="cmb_value">
+            <option th:each="supplier : ${suppliers}"
+                    th:value="${supplier.name}"
+                    th:text="${supplier.name}"></option>
+        </select>
+        <input type="submit" value="Submit" class="btn btn-primary"/>
+    </form>
+</div>
+</body>
+</html>

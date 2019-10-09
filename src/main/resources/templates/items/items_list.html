@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{fragments/layout.html}">
+<head>
+    <title>Items</title>
+</head>
+<body>
+<div class="card mb-3" layout:fragment="content">
+    <div class="card-header">
+        <i class="fas fa-table"></i>
+        Items table
+    </div>
+    <div class="card-body">
+        <nav>
+            <ul class="pagination">
+                <li th:each="page: ${pages}" class="page-item">
+                    <a th:text="${page}" class="page-link" th:classappend="${page==actualPage} ? bg-success" th:href="@{'/items/' + ${page}}"></a>
+                </li>
+            </ul>
+        </nav>
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Quantity[g]</th>
+                    <th>Price[g]</th>
+                    <th>Tax</th>
+                    <th>Supplier</th>
+                    <th>Detail</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                    <th>Name</th>
+                    <th>Quantity[g]</th>
+                    <th>Price[g]</th>
+                    <th>Tax</th>
+                    <th>Supplier</th>
+                    <th>Detail</th>
+                </tr>
+                </tfoot>
+                <tr th:each="item: ${items}">
+                    <td th:text="${item.itemName}"></td>
+                    <td th:text="${item.itemQuantity}"></td>
+                    <td th:text="${item.itemPrice}"></td>
+                    <td th:text="${item.itemTax}"></td>
+                    <td th:text="${item.supplier.name}"></td>
+                    <td><a class="btn btn-success" th:href="@{'/item/detail/' + ${item.itemId}}"
+                           disabled="false">Detail</a>
+                        <a class="btn btn-success" th:href="@{'/cart/addItem/' + ${item.itemId}}"
+                           disabled="true">Buy</a>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav>
+            <ul class="pagination">
+                <li th:each="page: ${pages}" class="page-item">
+                    <a th:text="${page}" class="page-link" th:classappend="${page==actualPage} ? bg-success" th:href="@{'/items/' + ${page}}"></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+</div>
+
+</div>
+</body>
+</html>

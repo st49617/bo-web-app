@@ -1,0 +1,43 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="Jan Houzvicka" id="11">
+        <createTable remarks="Used to store suppliers's information"
+                     tableName="suppliers">
+            <column name="id" type="int">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+<!--    <changeSet id="12" author="Jan Houzvicka">
+        <sql>ALTER TABLE suppliers CONVERT TO CHARACTER SET UTF8;</sql>
+    </changeSet>-->
+
+    <changeSet author="Jan Houzvicka" id="13">
+        <addAutoIncrement columnDataType="int"
+                          columnName="id"
+                          incrementBy="1"
+                          startWith="1"
+                          tableName="suppliers"/>
+    </changeSet>
+
+    <changeSet author="Jan Houzvicka" id="14">
+        <insert tableName="suppliers">
+            <column name="name" value="Oříšek s.r.o."/>
+        </insert>
+    </changeSet>
+
+    <changeSet author="Jan Houzvicka" id="15">
+        <insert tableName="suppliers">
+            <column name="name" value="Country life"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

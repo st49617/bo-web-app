@@ -1,0 +1,22 @@
+<ul class="sidebar navbar-nav" th:fragment="sidebar" xmlns:th="http://www.w3.org/1999/xhtml">
+    <li class="nav-item active">
+        <a class="nav-link" th:href="@{'/dashboard'}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+        <a class="nav-link" th:href="@{'/price_list'}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Import</span>
+        </a>
+
+        <a class="nav-link" th:href="@{'/items/1'}">
+            <i class="fas fa-fw fa-beer"></i>
+            <span>Items</span>
+        </a>
+
+        <a class="nav-link" th:href="@{'/cart'}">
+            <i class="fas fa-fw fa-cart-plus"></i>
+            <span>Cart</span>
+        </a>
+    </li>
+</ul>

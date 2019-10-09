@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{fragments/layout.html}"
+      xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h1>Dashboard</h1>
+    <hr>
+   <!-- <div th:each="item: ${items}">
+        <h2 th:text="${item.getItem().getItemName()}">Item name</h2>
+        <h2 th:text="${item.getState()}">State</h2>
+        <h2 th:text="${item.getAmount()}">Amount</h2>
+        <hr>
+    </div>-->
+    <div class="table-responsive">
+        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Amount</th>
+            </tr>
+            </thead>
+            <tr th:each="item: ${items}">
+                <td th:text="${item.getItem().getItemName()}"></td>
+                <td th:text="${item.getAmount()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr>
+</div>
+</body>
+</html>
