@@ -41,7 +41,7 @@ public class LoginController
             model.addAttribute("error", "Invalid login credentials!");
         }
 
-        return "/homepage/login";
+        return "homepage/login";
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
