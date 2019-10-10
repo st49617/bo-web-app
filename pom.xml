@@ -78,6 +78,12 @@
            <artifactId>spring-boot-starter-security</artifactId>
        </dependency>
 
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.1</version>
+        </dependency>
+
         <!--dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
@@ -162,6 +168,11 @@
             <artifactId>mockito-core</artifactId>
             <version>2.27.0</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>dbcp</artifactId>
+            <version>6.0.29</version>
         </dependency>
     </dependencies>
 
