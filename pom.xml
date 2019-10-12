@@ -83,6 +83,9 @@
             <artifactId>postgresql</artifactId>
             <version>42.2.1</version>
         </dependency>
+        <!--9.4.1212-->
+
+
 <!--        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -163,11 +166,7 @@
             <version>2.27.0</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>dbcp</artifactId>
-            <version>6.0.29</version>
-        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
