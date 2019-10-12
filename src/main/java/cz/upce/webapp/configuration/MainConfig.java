@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 @Configuration
 public class MainConfig {
 
-   /* @Bean
+   @Bean
     public BasicDataSource dataSource() throws URISyntaxException {
         URI dbUri = new URI(System.getenv("DATABASE_URL"));
 
@@ -22,7 +22,7 @@ public class MainConfig {
         basicDataSource.setUrl(dbUrl);
         basicDataSource.setUsername(username);
         basicDataSource.setPassword(password);
-
+        System.out.println("Created DATASOURCE");
         return basicDataSource;
-    }*/
+    }
 }
