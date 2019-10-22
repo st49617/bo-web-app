@@ -33,7 +33,7 @@ public class Item implements Serializable
     @Column(name = "item_tax", nullable = false)
     private Integer itemTax;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false)
     private Supplier supplier;
 
     public Item() { }

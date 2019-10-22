@@ -1,8 +1,8 @@
 package cz.upce.webapp.dao
 
-
+import cz.upce.webapp.dao.stock.model.Item
 import cz.upce.webapp.dao.stock.repository.ItemRepository
-
+import cz.upce.webapp.dao.testutil.Creator
 import cz.upce.webapp.dao.testutil.ItemTestDataFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -10,18 +10,18 @@ import org.springframework.context.annotation.Import
 import spock.lang.Specification
 
 @DataJpaTest
-@Import(ItemTestDataFactory.class)
+@Import(Creator.class)
 class ItemRepositoryTest extends Specification {
 
     @Autowired ItemRepository itemRepository;
-    @Autowired ItemTestDataFactory itemTestDataFactory
+    @Autowired Creator creator
 
     def "test"() {
 
         when:
-        itemTestDataFactory.save("C mandle uzené")
-        itemTestDataFactory.save("A mandle uzené")
-        itemTestDataFactory.save("B mandle")
+        creator.save(new Item(itemName: "C mandle uzené"))
+        creator.save(new Item(itemName: "A mandle uzené"))
+        creator.save(new Item(itemName: "B mandle"))
 
         def items = itemRepository.findAllSorted(0, 10)
         def itemsBy = itemRepository.findAllByItemNameIgnoreCaseContainingOrderByItemName("mandle uzené")
