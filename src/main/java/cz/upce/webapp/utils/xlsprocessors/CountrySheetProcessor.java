@@ -51,6 +51,8 @@ public class CountrySheetProcessor implements ISheetProcessor
         LOGGER.info("Started parsing the values from the file with:" + this.getClass().getName());
         StringBuilder sheetData = new StringBuilder();
 
+
+        List<Item> toSave = new ArrayList<>();
         Row row;
         //Iterate through all rows
         while (rowIterator.hasNext())
@@ -69,25 +71,39 @@ public class CountrySheetProcessor implements ISheetProcessor
                 Supplier supplier = supplierRepository.getOne(SUPPLIER_ID);
                 Item item = disintegrateIntoItemCountyLife(sheetData.toString(), supplier);
                 //save object to the database
+                if (!validateImportedObject(item))
+                {
+                    LOGGER.warn("Item: " + item + " was not validated and was not persisted!");
+                    cleanStringBuilder(sheetData);
+                } else {
+                    toSave.add(item);
+                }
                 persistLoadedObject(item, sheetData, itemRepository);
             }
             cleanStringBuilder(sheetData);
-
         }
+        itemRepository.saveAll(toSave);
     }
 
     private Item disintegrateIntoItemCountyLife(String string, Supplier supplier)
     {
-        String[] values = Arrays.stream(string.split(DELIMITER))
-                .map(String::trim)
-                .toArray(String[]::new);
-        if (checkIfQuantityValueIsPermitted(values[12]))
-        {
-            Double weightCof = checkValuesInQuantityColumn(values[12]);
-            return new Item(values[8], weightCof, countValueForOneGram(Double.parseDouble(values[15]), weightCof), Integer.parseInt(values[17]), supplier);
-        }
-        else
-        {
+        try {
+            String[] values = Arrays.stream(string.split(DELIMITER))
+                    .map(String::trim)
+                    .toArray(String[]::new);
+            if (checkIfQuantityValueIsPermitted(values[13])) {
+                return new Item(values[8], Double.valueOf(values[14]), Double.parseDouble(values[15])/1000, Integer.parseInt(values[17]), supplier);
+            } else if (checkIfQuantityValueIsPermitted(values[12]))
+            {
+                Double weightCof = checkValuesInQuantityColumn(values[12]);
+                return new Item(values[8], weightCof, countValueForOneGram(Double.parseDouble(values[15]), weightCof), Integer.parseInt(values[17]), supplier);
+            }
+            else
+            {
+                return null;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Error:" + e.getMessage());
             return null;
         }
     }

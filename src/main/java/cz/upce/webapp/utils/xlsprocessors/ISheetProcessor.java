@@ -33,10 +33,15 @@ public interface ISheetProcessor
     default void parseExcelFile(MultipartFile fileName, String filePath) throws IOException
     {
         Path path = Paths.get(filePath + File.separator + fileName.getOriginalFilename());
-        FileInputStream excelFile = new FileInputStream(new File(path.toUri()));
+        File fileToParse = new File(path.toUri());
+        parseExcelFile(fileToParse);
+    }
+
+    default void parseExcelFile(File fileToParse) throws IOException {
+        FileInputStream excelFile = new FileInputStream(fileToParse);
         Workbook workbook;
 
-        if (Objects.requireNonNull(fileName.getOriginalFilename()).contains(XLS_EXTENSIONS))
+        if (fileToParse.getName().contains(XLS_EXTENSIONS))
             workbook = new HSSFWorkbook(excelFile);
         else
             workbook = new XSSFWorkbook(excelFile);
@@ -64,7 +69,7 @@ public interface ISheetProcessor
     default boolean validateImportedObject(Item item)
     {
         return item != null && !item.getItemName().isEmpty() && item.getItemName() != null
-                && !item.getItemQuantity().isNaN() && item.getItemQuantity() != null
+                && !item.getItemQuantity().isNaN() && item.getItemQuantity() != null && item.getItemQuantity() >= 500
                 && !item.getItemPrice().isNaN() && item.getItemPrice() != null && item.getItemName() != null;
     }
 

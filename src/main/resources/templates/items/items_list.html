@@ -24,7 +24,7 @@
                 <tr>
                     <th>Name</th>
                     <th>Quantity[g]</th>
-                    <th>Price[g]</th>
+                    <th>Price without VAT[100 g]</th>
                     <th>Tax</th>
                     <th>Supplier</th>
                     <th>Detail</th>
@@ -34,7 +34,7 @@
                 <tr>
                     <th>Name</th>
                     <th>Quantity[g]</th>
-                    <th>Price[g]</th>
+                    <th>Price without VAT[100 g]</th>
                     <th>Tax</th>
                     <th>Supplier</th>
                     <th>Detail</th>
@@ -43,7 +43,7 @@
                 <tr th:each="item: ${items}">
                     <td th:text="${item.itemName}"></td>
                     <td th:text="${item.itemQuantity}"></td>
-                    <td th:text="${item.itemPrice}"></td>
+                    <td th:text="${#numbers.formatDecimal(item.itemPrice*100,0,2)}"></td>
                     <td th:text="${item.itemTax}"></td>
                     <td th:text="${item.supplier.name}"></td>
                     <td><a class="btn btn-success" th:href="@{'/item/detail/' + ${item.itemId}}"

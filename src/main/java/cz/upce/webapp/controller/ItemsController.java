@@ -36,8 +36,7 @@ public class ItemsController
     @GetMapping("/items/{page}")
     public String showAllItems(@PathVariable Integer page, Model model)
     {
-        Pageable firstPageWithTwoElements = PageRequest.of(page - 1, itemsPerPage);
-        List<Item> items = itemRepository.findAll(firstPageWithTwoElements).getContent();
+        List<Item> items = itemRepository.findAllSorted(page-1, itemsPerPage);
 
         model.addAttribute("items", items);
         List<Integer> pages = pages(itemRepository.findAll().size());
@@ -51,6 +50,7 @@ public class ItemsController
     public String showItemById(@PathVariable Integer itemId, Model model)
     {
         model.addAttribute("item", itemRepository.findById(itemId).get());
+
         return "items/items_detail";
     }
 

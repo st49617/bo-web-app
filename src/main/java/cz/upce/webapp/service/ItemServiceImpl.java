@@ -30,7 +30,7 @@ public class ItemServiceImpl
 
     public List<Item> findFilteredByName(String name)
     {
-        return itemRepository.findAllByItemNameIgnoreCaseContaining(name);
+        return itemRepository.findAllByItemNameIgnoreCaseContainingOrderByItemName(name);
     }
 
     public void deleteAllBySupplier(String supplier)
