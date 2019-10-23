@@ -18,18 +18,20 @@ class ItemRepositoryTest extends Specification {
 
     def "test"() {
 
-        when:
-        creator.save(new Item(itemName: "C mandle uzené"))
-        creator.save(new Item(itemName: "A mandle uzené"))
-        creator.save(new Item(itemName: "B mandle"))
+        given:
+            // Prepare test data
+            creator.save(new Item(itemName: "C mandle uzené"))
+            creator.save(new Item(itemName: "A mandle uzené"))
+            creator.save(new Item(itemName: "B mandle"))
 
-        def items = itemRepository.findAllSorted(0, 10)
-        def itemsBy = itemRepository.findAllByItemNameIgnoreCaseContainingOrderByItemName("mandle uzené")
+        when:
+            def items = itemRepository.findAllSorted(0, 10)
+            def itemsBy = itemRepository.findAllByItemNameIgnoreCaseContainingOrderByItemName("mandle uzené")
         then:
-        items.size() == 3
-        items.get(1).itemName == "B mandle"
-        itemsBy.size() == 2
-        itemsBy.get(1).itemName == "C mandle uzené"
+            items.size() == 3
+            items.get(1).itemName == "B mandle"
+            itemsBy.size() == 2
+            itemsBy.get(1).itemName == "C mandle uzené"
     }
 
 }
