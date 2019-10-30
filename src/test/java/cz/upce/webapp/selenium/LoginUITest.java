@@ -1,10 +1,11 @@
-package cz.upce.webapp.junit;
+package cz.upce.webapp.selenium;
 
-import cz.upce.webapp.selenium.DashboardPage;
-import cz.upce.webapp.selenium.LoginPage;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import cz.upce.webapp.selenium.testframework.SeleniumTestCase;
+import cz.upce.webapp.selenium.testframework.pages.LoginPage;
+import cz.upce.webapp.selenium.testframework.pages.DashboardPage;
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 import static org.junit.Assert.*;
@@ -13,29 +14,20 @@ import static org.junit.Assert.*;
  * @author Martin Volenec / st46661
  */
 
-public class LoginUITest
+public class LoginUITest extends SeleniumTestCase
 {
-    private static LoginPage loginPage;
-    private static DashboardPage dashboardPage;
+    @Autowired private LoginPage loginPage;
+    @Autowired private DashboardPage dashboardPage;
 
-
-    @BeforeClass
-    public static void setUp()
-    {
-        loginPage = new LoginPage();
-    }
-
-    @AfterClass
-    public static void tearDown()
-    {
-        loginPage.closeWindow();
+    @Before
+    public void visit() {
+        loginPage.visit();
     }
 
     @Test
     public void loginPageCorrectTitle()
     {
-        loginPage.visit();
-        String actualTitle = loginPage.getTitle();
+        String actualTitle = loginPage.driver.getTitle();
         assertEquals(loginPage.getExpectedTitle(), actualTitle);
     }
 

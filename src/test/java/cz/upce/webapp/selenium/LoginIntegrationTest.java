@@ -1,4 +1,4 @@
-package cz.upce.webapp.junit;
+package cz.upce.webapp.selenium;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
