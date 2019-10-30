@@ -9,6 +9,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.reflections.Reflections;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -41,8 +42,12 @@ public class Creator implements ApplicationContextAware {
     private Map<Class, JpaRepository> repositories = new HashMap<>();
     @PostConstruct
     public void postConstruct() {
-        repositories.put(Item.class, itemRepository);
-        repositories.put(Supplier.class, supplierRepository);
+        Reflections ref = new Reflections("cz.upce.webapp.dao");
+        for (Class<?> entityClass : ref.getTypesAnnotatedWith(Entity.class)) {
+            String entityName = entityClass.getSimpleName();
+            String repoBeanName = entityName.substring(0,1).toLowerCase() + entityName.substring(1) + "Repository";
+            repositories.put(entityClass, (JpaRepository) applicationContext.getBean(repoBeanName));
+        }
     }
 
     public void save(Object... entities) {
@@ -88,7 +93,8 @@ public class Creator implements ApplicationContextAware {
                 saveChildEntity(propValue);
             }
 
-            getDao(entity).save(entity);
+            JpaRepository dao = getDao(entity);
+            dao.save(entity);
         } catch (Exception e) {
             throw new IllegalStateException("Problem", e);
         }
@@ -102,7 +108,7 @@ public class Creator implements ApplicationContextAware {
             return columns[0].nullable() == false;
         } else {
             ManyToOne[] manyToOnes = field.getDeclaredAnnotationsByType(ManyToOne.class);
-            if (manyToOnes.length==0) {
+            if (manyToOnes.length>0) {
                 return manyToOnes[0].optional()==false;
             }
         }

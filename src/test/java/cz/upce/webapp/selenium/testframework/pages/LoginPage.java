@@ -5,8 +5,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.concurrent.TimeUnit;
-
 @PageObject
 public class LoginPage
 {
@@ -15,6 +13,9 @@ public class LoginPage
 
     @Autowired
     public WebDriver driver;
+
+    @Autowired
+    private DashboardPage dashboardPage;
 
     public String getLoginFormName()
     {
@@ -31,24 +32,26 @@ public class LoginPage
         return driver.findElement(By.id("loginForm")).getAttribute("action");
     }
 
-    public void submitLoginForm(String email, String password)
+    public DashboardPage submitLoginForm(String email, String password)
     {
         fillEmail(email);
         fillPassword(password);
         driver.findElement(By.id("login-submit")).click();
 
-        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        return dashboardPage;
 
 
     }
 
-    private void fillPassword(String password) {
+    private LoginPage fillPassword(String password) {
         driver.findElement(By.id("inputPassword")).sendKeys(password);
+        return this;
     }
 
-    private void fillEmail(String email) {
+    private LoginPage fillEmail(String email) {
         driver.findElement(By.id("inputEmail"))
                 .sendKeys(email);
+        return this;
     }
 
     public String getErrorMessage() {
@@ -76,6 +79,8 @@ public class LoginPage
                 "/loginafter";
     }
 
-    public void visit() {
-            driver.get(url);    }
+    public LoginPage visit() {
+        driver.get(url);
+        return this;
+    }
 }
