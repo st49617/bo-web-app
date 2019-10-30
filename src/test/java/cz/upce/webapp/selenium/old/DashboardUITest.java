@@ -1,4 +1,4 @@
-package cz.upce.webapp.selenium;
+package cz.upce.webapp.selenium.old;
 
 import cz.upce.webapp.selenium.testframework.pages.DashboardPage;
 import cz.upce.webapp.selenium.testframework.pages.LoginPage;

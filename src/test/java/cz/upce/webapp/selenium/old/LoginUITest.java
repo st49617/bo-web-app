@@ -1,5 +1,6 @@
-package cz.upce.webapp.selenium;
+package cz.upce.webapp.selenium.old;
 
+import cz.upce.webapp.dao.testutil.Creator;
 import cz.upce.webapp.selenium.testframework.SeleniumTestCase;
 import cz.upce.webapp.selenium.testframework.pages.LoginPage;
 import cz.upce.webapp.selenium.testframework.pages.DashboardPage;
