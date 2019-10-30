@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import spock.lang.Specification
+import spock.lang.Unroll
 
 @DataJpaTest
 @Import(Creator.class)
@@ -34,6 +35,7 @@ class ItemRepositoryTest extends Specification {
     }
 
 
+    @Unroll("When #items in db 'mandle' search returns #expectedItemsSize items")
     def "findAllByItemNameIgnoreCaseContainingOrderByItemName"() {
 
         given:
