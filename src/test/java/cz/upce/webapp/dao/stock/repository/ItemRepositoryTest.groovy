@@ -3,7 +3,6 @@ package cz.upce.webapp.dao
 import cz.upce.webapp.dao.stock.model.Item
 import cz.upce.webapp.dao.stock.repository.ItemRepository
 import cz.upce.webapp.dao.testutil.Creator
-import cz.upce.webapp.dao.testutil.ItemTestDataFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
@@ -32,6 +31,28 @@ class ItemRepositoryTest extends Specification {
             items.get(1).itemName == "B mandle"
             itemsBy.size() == 2
             itemsBy.get(1).itemName == "C mandle uzené"
+    }
+
+
+    def "findAllByItemNameIgnoreCaseContainingOrderByItemName"() {
+
+        given:
+        def itemsToCreate = items.split(",")
+        for (String item  : itemsToCreate) {
+            creator.save(new Item(itemName: item))
+        }
+
+        when:
+            def itemsBy = itemRepository.findAllByItemNameIgnoreCaseContainingOrderByItemName("mandle")
+        then:
+            itemsBy.size() == expectedItemsSize
+
+        where:
+            items | expectedItemsSize
+            "mandle A,mandle C" | 2
+            "mandle,kešu" | 1
+            "loupané mandle,kešu,rozinky" | 1
+
     }
 
 }
