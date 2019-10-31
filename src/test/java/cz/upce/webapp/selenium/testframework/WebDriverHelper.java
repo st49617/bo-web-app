@@ -8,6 +8,8 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
+import java.net.InetAddress;
+
 public class WebDriverHelper {
 
 
@@ -37,8 +39,12 @@ public class WebDriverHelper {
         try {
             if (driverClass.equals(ChromeDriver.class)) {
                 ChromeOptions options = new ChromeOptions();
-                options.addArguments("headless");
-                options.addArguments("window-size=1200x600");
+                if (!"jety-17".equals(InetAddress.getLocalHost().getHostName())) {
+                    options.addArguments("headless");
+                    options.addArguments("window-size=1200x600");
+                    System.out.println("Running chrome in headless mode");
+                }
+
                 driver = new ChromeDriver(options);
             } else {
                 driver = (RemoteWebDriver) driverClass.newInstance();
