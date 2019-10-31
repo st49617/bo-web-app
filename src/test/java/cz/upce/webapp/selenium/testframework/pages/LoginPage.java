@@ -3,6 +3,8 @@ package cz.upce.webapp.selenium.testframework.pages;
 import cz.upce.webapp.selenium.testframework.PageObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PageObject
@@ -16,6 +18,9 @@ public class LoginPage
 
     @Autowired
     private DashboardPage dashboardPage;
+
+    @FindBy(id = "inputPassword")
+    WebElement inputPassword;
 
     public String getLoginFormName()
     {
@@ -44,7 +49,7 @@ public class LoginPage
     }
 
     private LoginPage fillPassword(String password) {
-        driver.findElement(By.id("inputPassword")).sendKeys(password);
+        inputPassword.sendKeys(password);
         return this;
     }
 
