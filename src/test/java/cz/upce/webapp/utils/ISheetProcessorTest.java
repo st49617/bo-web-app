@@ -23,7 +23,7 @@ public class ISheetProcessorTest {
 
     @Test
     public void itemIsValidatedTest() {
-        Item item = new Item("orech", 2.0, 256.0, 25, new Supplier());
+        Item item = new Item("orech", 2000.0, 256.0, 25, new Supplier());
         assertTrue(countrySheetProcessor.validateImportedObject(item));
     }
 

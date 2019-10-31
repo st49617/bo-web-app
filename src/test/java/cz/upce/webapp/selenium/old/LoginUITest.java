@@ -5,6 +5,7 @@ import cz.upce.webapp.selenium.testframework.SeleniumTestCase;
 import cz.upce.webapp.selenium.testframework.pages.LoginPage;
 import cz.upce.webapp.selenium.testframework.pages.DashboardPage;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -14,7 +15,7 @@ import static org.junit.Assert.*;
 /**
  * @author Martin Volenec / st46661
  */
-
+@Ignore
 public class LoginUITest extends SeleniumTestCase
 {
     @Autowired private LoginPage loginPage;
