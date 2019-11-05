@@ -5,6 +5,7 @@
     http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet author="Jan Houzvicka" id="01">
+        <validCheckSum>8:ffea0fe066884305f345939b4f0ec391</validCheckSum>
         <createTable remarks="Used to store user's information"
                      tableName="users">
             <column name="id" type="int">
