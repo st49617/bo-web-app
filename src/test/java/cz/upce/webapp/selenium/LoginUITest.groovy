@@ -36,28 +36,10 @@ public class LoginUITest extends Specification
                     .visit()
                     .submitLoginForm("tester2@test.cz", "test")
                     .title
-
         then:
             dashboardPage.title == actualDashboardTitle;
-
     }
 /*
-    @Test
-    public void loginPageCorrectFormName()
-    {
-        String actualFormName = loginPage.getLoginFormName();
-        assertEquals(loginPage.getExpectedFormName(), actualFormName);
-    }
-
-    @Test
-    public void loginPageCorrectSubmitName()
-    {
-        String actualSubmitName = loginPage.getSubmitName();
-
-        assertNotNull(actualSubmitName);
-        assertEquals(loginPage.getExpectedSubmitName(), actualSubmitName);
-    }
-
     @Test
     public void loginPageCorrectFormAction()
     {
