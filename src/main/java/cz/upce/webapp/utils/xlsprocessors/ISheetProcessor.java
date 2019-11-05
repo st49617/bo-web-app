@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import cz.upce.webapp.dao.stock.model.Item;
 import cz.upce.webapp.dao.stock.repository.ItemRepository;
@@ -28,16 +30,38 @@ public interface ISheetProcessor
     String EMPTY_SPACE = "";
     Logger LOGGER = LoggerFactory.getLogger(ISheetProcessor.class);
 
-    void iterateSheetValues(FormulaEvaluator formulaEvaluator, Iterator<Row> rowIterator, int maxRowIndex);
+    List<Item> iterateSheetValues(FormulaEvaluator formulaEvaluator, Iterator<Row> rowIterator, int maxRowIndex);
 
-    default void parseExcelFile(MultipartFile fileName, String filePath) throws IOException
+    default void importItemsFromFile(MultipartFile fileName, String filePath, ItemRepository itemRepository) throws IOException
     {
         Path path = Paths.get(filePath + File.separator + fileName.getOriginalFilename());
         File fileToParse = new File(path.toUri());
-        parseExcelFile(fileToParse);
+        importItemsFromFile(fileToParse, itemRepository);
     }
 
-    default void parseExcelFile(File fileToParse) throws IOException {
+    default void importItemsFromFile(File fileToParse, ItemRepository itemRepository) throws IOException {
+        List<Item> items = parseItems(fileToParse);
+
+        if (!items.isEmpty())
+        {
+            for (Item item : items)
+            {
+                //save object to the database
+                persistLoadedObject(item, itemRepository);
+            }
+        }
+    }
+
+    default Map<String, Item> parseItemsAsMap(File fileToParse) throws IOException {
+        List<Item> items = parseItems(fileToParse);
+        Map<String, Item> map = new HashMap<>();
+        for (Item item : items) {
+            String key = item.getItemName() + "_" + item.getItemQuantity().intValue() + (item.bio ? "_BIO" : "");
+            map.put(key, item);
+        }
+        return map;
+    }
+    default List<Item> parseItems(File fileToParse) throws IOException {
         FileInputStream excelFile = new FileInputStream(fileToParse);
         Workbook workbook;
 
@@ -51,7 +75,10 @@ public interface ISheetProcessor
         int maxRowIndex = workbook.getSheetAt(0).getRow(5).getPhysicalNumberOfCells();
         Iterator<Row> iterator = datatypeSheet.iterator();
         FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
-        iterateSheetValues(formulaEvaluator, iterator, maxRowIndex);
+        List<Item> items = iterateSheetValues(formulaEvaluator, iterator, maxRowIndex);
+
+        List<Item> validatedItems = items.stream().filter(i -> validateImportedObject(i)).collect(Collectors.toList());
+        return validatedItems;
     }
 
     default boolean isRowEmpty(Row row)
@@ -83,17 +110,30 @@ public interface ISheetProcessor
         stringBuilder.setLength(0);
     }
 
-    default void persistLoadedObject(Item item, StringBuilder sheetData, ItemRepository itemRepository)
+    default void persistLoadedObject(Item item, ItemRepository itemRepository)
     {
         if (!validateImportedObject(item))
         {
             LOGGER.warn("Item: " + item + " was not validated and was not persisted!");
-            cleanStringBuilder(sheetData);
             return;
         }
 
         itemRepository.save(item);
         LOGGER.info("Item: " + item + " has been written into the database successfully!");
-        cleanStringBuilder(sheetData);
     }
+}
+
+class Hosting {
+
+    private int Id;
+    private String name;
+    private long websites;
+
+    public Hosting(int id, String name, long websites) {
+        Id = id;
+        this.name = name;
+        this.websites = websites;
+    }
+
+    //getters, setters and toString()
 }

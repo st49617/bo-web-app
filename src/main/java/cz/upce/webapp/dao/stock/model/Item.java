@@ -2,6 +2,8 @@ package cz.upce.webapp.dao.stock.model;
 
 import javax.transaction.Transactional;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 import javax.persistence.*;
@@ -15,6 +17,9 @@ import javax.persistence.*;
 @Transactional
 public class Item implements Serializable
 {
+    public int rowIdx;
+    public boolean bio;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, unique = true, updatable = false)
@@ -42,7 +47,7 @@ public class Item implements Serializable
     {
         this.itemName = itemName;
         this.itemQuantity = itemQuantity;
-        this.itemPrice = itemPrice;
+        setItemPrice(itemPrice);
         this.itemTax = itemTax;
         this.supplier = supplier;
     }
@@ -84,7 +89,15 @@ public class Item implements Serializable
 
     public void setItemPrice(Double itemPrice)
     {
-        this.itemPrice = itemPrice;
+        this.itemPrice = round(itemPrice,5);
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 
     public Integer getItemTax()

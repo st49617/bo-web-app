@@ -3,6 +3,7 @@ package cz.upce.webapp.controller;
 import java.io.IOException;
 import java.util.Objects;
 
+import cz.upce.webapp.dao.stock.repository.ItemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import cz.upce.webapp.utils.xlsprocessors.ISheetProcessor;
 import cz.upce.webapp.utils.xlsprocessors.NutSheetProcessor;
 
 /**
- * Class used to parseExcelFile the .xls or .xlsx file
+ * Class used to importItemsFromFile the .xls or .xlsx file
  *
  * @author Tomas Kodym
  */
@@ -39,6 +40,9 @@ public class ImportController
 
     @Autowired
     CountrySheetProcessor countrySheetProcessor;
+
+    @Autowired
+    private ItemRepository itemRepository;
 
     @PostMapping("/upload")
     public String singleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("cmb_value") String value, RedirectAttributes redirectAttributes)
@@ -67,7 +71,7 @@ public class ImportController
             //select processor aligned with combobox value
             ISheetProcessor sheetProcessor = selectProcessor(value);
 
-            sheetProcessor.parseExcelFile(file, UPLOADING_DIR);
+            sheetProcessor.importItemsFromFile(file, UPLOADING_DIR, itemRepository);
 
             FileManipulator.deleteFile(file, UPLOADING_DIR);
 

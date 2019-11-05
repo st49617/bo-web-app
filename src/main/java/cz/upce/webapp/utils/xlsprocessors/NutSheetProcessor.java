@@ -43,11 +43,14 @@ public class NutSheetProcessor implements ISheetProcessor
 
 
     @Override
-    public void iterateSheetValues(FormulaEvaluator formulaEvaluator, Iterator<Row> rowIterator, int maxRow)
+    public List<Item> iterateSheetValues(FormulaEvaluator formulaEvaluator, Iterator<Row> rowIterator, int maxRow)
     {
         LOGGER.info("Started parsing the values from the file with:" + this.getClass().getName());
-        StringBuilder sheetData = new StringBuilder();
         Row row;
+        List<Item> allItems = new ArrayList();
+
+        Supplier supplier = supplierRepository.getOne(SUPPLIER_ID);
+
         //Iterate through all rows
         while (rowIterator.hasNext())
         {
@@ -57,21 +60,17 @@ public class NutSheetProcessor implements ISheetProcessor
 
             List<String> rowData = new ArrayList<>();
             parseRow(row, formulaEvaluator, rowData, maxRow);
-            sheetData.append(String.join(DELIMITER, rowData));
 
-            List<Item> itemList = disintegrateIntoItemNut(sheetData.toString());
-            if (!itemList.isEmpty())
-            {
-                for (Item item : itemList)
-                {
-                    //save object to the database
-                    item.setItemQuantity(countKilosToGrams(item.getItemQuantity()));
-                    item.setItemPrice(countValueForOneGram(item.getItemPrice(), item.getItemQuantity()));
+            String sheetData = String.join(DELIMITER, rowData);
 
-                    persistLoadedObject(item, sheetData, itemRepository);
-                }
+            List<Item> itemList = disintegrateIntoItemNut(sheetData, supplier);
+            for (Item item : itemList) {
+                item.setItemQuantity(countKilosToGrams(item.getItemQuantity()));
+                item.setItemPrice(item.getItemPrice()/1000);
             }
+            allItems.addAll(itemList);
         }
+        return allItems;
     }
 
     private void parseRow(Row row, FormulaEvaluator formulaEvaluator, List<String> rowData, int maxRow)
@@ -103,19 +102,18 @@ public class NutSheetProcessor implements ISheetProcessor
         }
     }
 
-    private List<Item> disintegrateIntoItemNut(String string)
+    private List<Item> disintegrateIntoItemNut(String sheetData, Supplier supplier)
     {
-        if (!string.isEmpty())
+        if (!sheetData.isEmpty())
         {
             List<Item> itemsList = new ArrayList<>();
             //split values from list to array
             String[] values = Arrays
-                    .stream(string.split(DELIMITER))
+                    .stream(sheetData.split(DELIMITER))
                     .map(String::trim)
                     .toArray(String[]::new);
 
             //for two columns in excel we need to parse both
-            Supplier supplier = supplierRepository.getOne(SUPPLIER_ID);
             if (values.length >= 3)
             {
                 if (StringUtils.isNumeric(values[1]))
@@ -125,8 +123,13 @@ public class NutSheetProcessor implements ISheetProcessor
             }
             if (values.length >= 9)
             {
-                if (StringUtils.isNumeric(values[6]))
-                    itemsList.add(new Item(values[5], Double.parseDouble(values[6]), Double.parseDouble(values[7]), Integer.parseInt(values[8]), supplier));
+                if (StringUtils.isNumeric(values[6])) {
+                    String itemName = values[5];
+                    double itemQuantity = Double.parseDouble(values[6]);
+                    double itemPrice = Double.parseDouble(values[7]);
+                    int itemTax = Integer.parseInt(values[8]);
+                    itemsList.add(new Item(itemName, itemQuantity, itemPrice, itemTax, supplier));
+                }
                 else
                     LOGGER.warn("Item was not created, because of non numeric value in quantity column!");
             }
