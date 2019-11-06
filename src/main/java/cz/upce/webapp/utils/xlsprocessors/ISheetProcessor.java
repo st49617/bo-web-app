@@ -75,6 +75,9 @@ public interface ISheetProcessor
         int maxRowIndex = workbook.getSheetAt(0).getRow(5).getPhysicalNumberOfCells();
         Iterator<Row> iterator = datatypeSheet.iterator();
         FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+
+        LOGGER.info("Started parsing the values from the file with:" + this.getClass().getName());
+
         List<Item> items = iterateSheetValues(formulaEvaluator, iterator, maxRowIndex);
 
         List<Item> validatedItems = items.stream().filter(i -> validateImportedObject(i)).collect(Collectors.toList());
@@ -121,19 +124,32 @@ public interface ISheetProcessor
         itemRepository.save(item);
         LOGGER.info("Item: " + item + " has been written into the database successfully!");
     }
-}
 
-class Hosting {
 
-    private int Id;
-    private String name;
-    private long websites;
-
-    public Hosting(int id, String name, long websites) {
-        Id = id;
-        this.name = name;
-        this.websites = websites;
+    default void parseRow(Row row, FormulaEvaluator formulaEvaluator, List<String> rowData, int maxRow)
+    {
+        Cell cell;
+        for (int i = 1; i < maxRow; i++)
+        {
+            cell = row.getCell(i);
+            //Parse towards the cell type
+            switch (cell.getCellType())
+            {
+                case Cell.CELL_TYPE_NUMERIC:
+                    rowData.add(String.valueOf(cell.getNumericCellValue()).replaceFirst("\\.0+$", EMPTY_SPACE));
+                    break;
+                case Cell.CELL_TYPE_STRING:
+                    rowData.add(cell.getStringCellValue());
+                    break;
+                case Cell.CELL_TYPE_BLANK:
+                    rowData.add(EMPTY_SPACE);
+                    break;
+                case Cell.CELL_TYPE_FORMULA:
+                    rowData.add(formulaEvaluator.evaluate(cell).formatAsString().replaceFirst("\\.0+$", EMPTY_SPACE));
+                    break;
+                default:
+                    rowData.add(String.valueOf(cell));
+            }
+        }
     }
-
-    //getters, setters and toString()
 }

@@ -6,7 +6,8 @@ import cz.upce.webapp.selenium.testframework.SeleniumTestCase;
 import cz.upce.webapp.selenium.testframework.pages.DashboardPage;
 import cz.upce.webapp.selenium.testframework.pages.LoginPage;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.Test
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import spock.lang.Specification;
@@ -24,6 +25,7 @@ public class LoginUIIntegrationTest extends Specification
     @Autowired private LoginPage loginPage;
     @Autowired private DashboardPage dashboardPage;
     @Autowired private Creator creator
+    @Autowired private WebDriver driver
 
 
     def "loginPageCorrectTitle"()
@@ -37,7 +39,7 @@ public class LoginUIIntegrationTest extends Specification
                     .submitLoginForm("tester2@test.cz", "test")
                     .title
         then:
-            dashboardPage.title == actualDashboardTitle;
+            driver.title == actualDashboardTitle
     }
 /*
     @Test

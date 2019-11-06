@@ -1,7 +1,5 @@
 package cz.upce.webapp.selenium.testframework;
 
-import cz.upce.webapp.selenium.testframework.SeleniumTestCaseContext;
-import cz.upce.webapp.selenium.testframework.SeleniumTestExecutionListener;
 import org.junit.After;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
@@ -13,8 +11,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SeleniumTestCaseContext.class)
-@TestExecutionListeners({ SeleniumTestExecutionListener.class,
- DependencyInjectionTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
 public abstract class SeleniumTestCase {
 
     @Autowired

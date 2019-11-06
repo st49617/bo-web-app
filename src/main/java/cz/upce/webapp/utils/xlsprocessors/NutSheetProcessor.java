@@ -45,7 +45,6 @@ public class NutSheetProcessor implements ISheetProcessor
     @Override
     public List<Item> iterateSheetValues(FormulaEvaluator formulaEvaluator, Iterator<Row> rowIterator, int maxRow)
     {
-        LOGGER.info("Started parsing the values from the file with:" + this.getClass().getName());
         Row row;
         List<Item> allItems = new ArrayList();
 
@@ -71,35 +70,6 @@ public class NutSheetProcessor implements ISheetProcessor
             allItems.addAll(itemList);
         }
         return allItems;
-    }
-
-    private void parseRow(Row row, FormulaEvaluator formulaEvaluator, List<String> rowData, int maxRow)
-    {
-        Cell cell;
-        for (int i = 0; i < maxRow; i++)
-        {
-            cell = row.getCell(i);
-            switch (cell.getCellType())
-            {
-                case Cell.CELL_TYPE_NUMERIC:
-                    rowData.add(String.valueOf(cell.getNumericCellValue()).replaceFirst("\\.0+$", EMPTY_SPACE));
-                    break;
-                case Cell.CELL_TYPE_STRING:
-                    if (validateCellValue(cell))
-                        break;
-
-                    rowData.add(cell.getStringCellValue());
-                    break;
-                case Cell.CELL_TYPE_BLANK:
-                    rowData.add(EMPTY_SPACE);
-                    break;
-                case Cell.CELL_TYPE_FORMULA:
-                    rowData.add(formulaEvaluator.evaluate(cell).formatAsString().replaceFirst("\\.0+$", EMPTY_SPACE));
-                    break;
-                default:
-                    rowData.add(String.valueOf(cell));
-            }
-        }
     }
 
     private List<Item> disintegrateIntoItemNut(String sheetData, Supplier supplier)

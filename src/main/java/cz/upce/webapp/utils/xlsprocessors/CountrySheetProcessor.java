@@ -48,8 +48,6 @@ public class CountrySheetProcessor implements ISheetProcessor
     @Override
     public List<Item> iterateSheetValues(FormulaEvaluator formulaEvaluator, Iterator<Row> rowIterator, int maxRow)
     {
-        LOGGER.info("Started parsing the values from the file with:" + this.getClass().getName());
-
         List<Item> allItems = new ArrayList<>();
         Row row;
 
@@ -72,7 +70,7 @@ public class CountrySheetProcessor implements ISheetProcessor
 
             if (!rowData.get(0).isEmpty())
             {
-                Item item = disintegrateIntoItemCountyLife(sheetData, rowIdx, supplier);
+                Item item = disintegrateIntoItem(sheetData, rowIdx, supplier);
 
                 //save object to the database
                 if (!validateImportedObject(item))
@@ -86,7 +84,7 @@ public class CountrySheetProcessor implements ISheetProcessor
         return allItems;
     }
 
-    private Item disintegrateIntoItemCountyLife(String string, int rowIdx, Supplier supplier)
+    private Item disintegrateIntoItem(String string, int rowIdx, Supplier supplier)
     {
         try {
             String[] values = Arrays.stream(string.split(DELIMITER))
@@ -126,33 +124,6 @@ public class CountrySheetProcessor implements ISheetProcessor
         } catch (NumberFormatException e) {
             System.out.println("Error:" + e.getMessage());
             return null;
-        }
-    }
-
-    private void parseRow(Row row, FormulaEvaluator formulaEvaluator, List<String> rowData, int maxRow)
-    {
-        Cell cell;
-        for (int i = 1; i < maxRow; i++)
-        {
-            cell = row.getCell(i);
-            //Parse towards the cell type
-            switch (cell.getCellType())
-            {
-                case Cell.CELL_TYPE_NUMERIC:
-                    rowData.add(String.valueOf(cell.getNumericCellValue()).replaceFirst("\\.0+$", EMPTY_SPACE));
-                    break;
-                case Cell.CELL_TYPE_STRING:
-                    rowData.add(cell.getStringCellValue());
-                    break;
-                case Cell.CELL_TYPE_BLANK:
-                    rowData.add(EMPTY_SPACE);
-                    break;
-                case Cell.CELL_TYPE_FORMULA:
-                    rowData.add(formulaEvaluator.evaluate(cell).formatAsString().replaceFirst("\\.0+$", EMPTY_SPACE));
-                    break;
-                default:
-                    rowData.add(String.valueOf(cell));
-            }
         }
     }
 
