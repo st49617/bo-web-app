@@ -2,43 +2,31 @@ package cz.upce.webapp.utils.xlsprocessors;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import cz.upce.webapp.dao.stock.model.Item;
 import cz.upce.webapp.dao.stock.model.Supplier;
-import cz.upce.webapp.dao.stock.repository.ItemRepository;
-import cz.upce.webapp.dao.stock.repository.SupplierRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Tomas Kodym
  */
-@Component
-public class CountrySheetProcessor implements ISheetProcessor
+public class CountrySheetProcessor extends AbstractSheetProcessor
 {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CountrySheetProcessor.class);
 
     private static final int PARSING_STARTER_ROW = 13;
     private static final int KILO_VALUE = 1000;
-    private static final int SUPPLIER_ID = 2;
     private static final String KILOS_UPPER = "Kg";
     private static final String KILOS_LOWER = "kg";
-    private static final List<String> QUANTITY_ALLOWED_VALUES = Arrays.asList("kg", "g");
+    private static final List<String> QUANTITY_FORBIDDEN_VALUES = Arrays.asList("kg", "g");
 
-
-    @Autowired
-    SupplierRepository supplierRepository;
-    @Autowired
-    ItemRepository itemRepository;
 
     private static boolean isRowOmitted(int rowNumber)
     {
@@ -46,84 +34,76 @@ public class CountrySheetProcessor implements ISheetProcessor
     }
 
     @Override
-    public List<Item> iterateSheetValues(FormulaEvaluator formulaEvaluator, Iterator<Row> rowIterator, int maxRow)
-    {
-        List<Item> allItems = new ArrayList<>();
-        Row row;
-
-        Supplier supplier = supplierRepository.getOne(SUPPLIER_ID);
-
+    public List<Item> disintegrateIntoItem(int rowIdx, List<String> rowData, Supplier supplier) {
+        List<Item> items = new ArrayList<>();
         //Iterate through all rows
-        int rowIdx = 0;
-        while (rowIterator.hasNext())
-        {
-            rowIdx++;
+            if (isRowOmitted(rowIdx)) return items;
 
-            row = rowIterator.next();
-            if (isRowEmpty(row) || isRowOmitted(row.getRowNum()))
-                continue;
-
-            List<String> rowData = new ArrayList<>();
-
-            parseRow(row, formulaEvaluator, rowData, maxRow);
-            String sheetData = String.join(DELIMITER, rowData);
-
-            if (!rowData.get(0).isEmpty())
+            if (!rowData.get(1).isEmpty())
             {
-                Item item = disintegrateIntoItem(sheetData, rowIdx, supplier);
-
-                //save object to the database
-                if (!validateImportedObject(item))
-                {
-                    LOGGER.warn("Item: " + item + " was not validated and was not persisted!");
-                } else {
-                    allItems.add(item);
-                }
+                Item item = disintegrateIntoItemCountyLife(rowData);
+                items.add(item);
             }
-        }
-        return allItems;
+            return items;
     }
 
-    private Item disintegrateIntoItem(String string, int rowIdx, Supplier supplier)
+    private Item disintegrateIntoItemCountyLife(List<String> rowData)
     {
         try {
-            String[] values = Arrays.stream(string.split(DELIMITER))
-                    .map(String::trim)
-                    .toArray(String[]::new);
-            int itemTax = Integer.parseInt(values[17]);
-            String quantityValue = values[13];
-            double priceValue = Double.parseDouble(values[15]);
-            Item item = null;
+            String[] values = rowData.toArray(new String[0]);
+            String itemName = values[9].trim();
+            String priceStr = values[16];
+            int itemTax = Integer.parseInt(values[18]);
+            double itemQuantity;
+            double itemPrice;
 
-            if (checkIfQuantityValueIsPermitted(quantityValue)) {
-                double itemPrice =  priceValue / 1000;
-                Double itemQuantity = Double.valueOf(values[14]);
-                if (quantityValue.equalsIgnoreCase("kg")) {
-                    itemQuantity *= 1000;
-                }
-                item = new Item(values[8], itemQuantity, itemPrice, itemTax, supplier);
+            if (checkIfQuantityValueIsPermitted(values[14])) {
+                String ks_kg_baleni = values[15];
+                itemQuantity = Double.valueOf(ks_kg_baleni) * 1000;
+                itemPrice = Double.parseDouble(priceStr) / 1000;
             } else {
-                String quantity = values[12];
-                if (checkIfQuantityValueIsPermitted(quantity))
+                String gramaz = values[13];
+                if (checkIfQuantityValueIsPermitted(gramaz))
                 {
-                    Double weightCof = checkValuesInQuantityColumn(quantity);
-                    Double itemPrice = priceValue;
-                    if (quantity.toUpperCase().endsWith(" KG")) {
-                        weightCof*=1000;
-                        itemPrice/=1000;
-                    }
-                    item = new Item(values[8], weightCof, itemPrice, itemTax, supplier);
+                    itemQuantity = checkValuesInQuantityColumn(gramaz);
+                    itemPrice = countValueForOneGram(Double.parseDouble(priceStr), itemQuantity);
+                } else {
+                    return null;
                 }
             }
-            if (item!=null) {
-                boolean bio = "BIO".equalsIgnoreCase(values[9]);
-                item.rowIdx = rowIdx;
-                item.bio = bio;
-            }
+            Item item = new Item(itemName, itemQuantity, itemPrice, itemTax, null);
+            if ("BIO".equals(values[10])) item.bio = true;
             return item;
         } catch (NumberFormatException e) {
             System.out.println("Error:" + e.getMessage());
             return null;
+        }
+    }
+
+    private void parseRow(Row row, FormulaEvaluator formulaEvaluator, List<String> rowData, int maxRow)
+    {
+        Cell cell;
+        for (int i = 1; i < maxRow; i++)
+        {
+            cell = row.getCell(i);
+            //Parse towards the cell type
+            switch (cell.getCellType())
+            {
+                case Cell.CELL_TYPE_NUMERIC:
+                    rowData.add(String.valueOf(cell.getNumericCellValue()).replaceFirst("\\.0+$", EMPTY_SPACE));
+                    break;
+                case Cell.CELL_TYPE_STRING:
+                    rowData.add(cell.getStringCellValue());
+                    break;
+                case Cell.CELL_TYPE_BLANK:
+                    rowData.add(EMPTY_SPACE);
+                    break;
+                case Cell.CELL_TYPE_FORMULA:
+                    rowData.add(formulaEvaluator.evaluate(cell).formatAsString().replaceFirst("\\.0+$", EMPTY_SPACE));
+                    break;
+                default:
+                    rowData.add(String.valueOf(cell));
+            }
         }
     }
 
@@ -143,7 +123,7 @@ public class CountrySheetProcessor implements ISheetProcessor
         if (quantityValue.isEmpty())
             return false;
 
-        for (String s : QUANTITY_ALLOWED_VALUES)
+        for (String s : QUANTITY_FORBIDDEN_VALUES)
         {
             if (quantityValue.contains(s))
                 return true;
@@ -151,4 +131,11 @@ public class CountrySheetProcessor implements ISheetProcessor
 
         return false;
     }
+
+    @Override
+    protected Integer supplerId() {
+        return 2;
+    }
+
+
 }

@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import cz.upce.webapp.dao.stock.model.Item;
+import cz.upce.webapp.dao.stock.model.Supplier;
 import cz.upce.webapp.dao.stock.repository.ItemRepository;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -30,7 +30,32 @@ public interface ISheetProcessor
     String EMPTY_SPACE = "";
     Logger LOGGER = LoggerFactory.getLogger(ISheetProcessor.class);
 
-    List<Item> iterateSheetValues(FormulaEvaluator formulaEvaluator, Iterator<Row> rowIterator, int maxRowIndex);
+    default List<Item> iterateSheetValues(FormulaEvaluator formulaEvaluator, Iterator<Row> rowIterator)
+    {
+        Row row;
+        List<Item> allItems = new ArrayList();
+
+        //Iterate through all rows
+        int rowIdx = 0;
+        while (rowIterator.hasNext())
+        {
+            rowIdx++;
+            row = rowIterator.next();
+
+            List<String> rowData = new ArrayList<>();
+            parseRow(row, formulaEvaluator, rowData);
+
+            if (!rowData.isEmpty()) {
+                List<Item> itemList = disintegrateIntoItem(rowIdx, rowData, supplier());
+                allItems.addAll(itemList);
+            }
+        }
+        return allItems;
+    }
+
+    Supplier supplier();
+
+    List<Item> disintegrateIntoItem(int rowIdx, List<String> rowData, Supplier supplier);
 
     default void importItemsFromFile(MultipartFile fileName, String filePath, ItemRepository itemRepository) throws IOException
     {
@@ -85,7 +110,7 @@ public interface ISheetProcessor
 
         LOGGER.info("Started parsing the values from the file with:" + this.getClass().getName());
 
-        List<Item> items = iterateSheetValues(formulaEvaluator, iterator, maxRowIndex);
+        List<Item> items = iterateSheetValues(formulaEvaluator, iterator);
 
         List<Item> validatedItems = items.stream().filter(i -> validateImportedObject(i)).collect(Collectors.toList());
         return validatedItems;
@@ -114,9 +139,9 @@ public interface ISheetProcessor
                 && !item.getItemPrice().isNaN() && item.getItemPrice() != null && item.getItemName() != null;
     }
 
-    default double countValueForOneGram(Double priceForKilos, Double weightCof)
+    default double countValueForOneGram(Double priceForKilos, Double itemQuantity)
     {
-        return priceForKilos / weightCof;
+        return priceForKilos / itemQuantity;
     }
 
     default void cleanStringBuilder(StringBuilder stringBuilder)
@@ -137,13 +162,15 @@ public interface ISheetProcessor
     }
 
 
-    default void parseRow(Row row, FormulaEvaluator formulaEvaluator, List<String> rowData, int maxRow)
+    default void parseRow(Row row, FormulaEvaluator formulaEvaluator, List<String> rowData)
     {
         Cell cell;
-        for (int i = 1; i < maxRow; i++)
+        int physicalNumberOfCells = row.getPhysicalNumberOfCells();
+        for (int i = 0; i <= physicalNumberOfCells; i++)
         {
             cell = row.getCell(i);
             //Parse towards the cell type
+
             switch (cell.getCellType())
             {
                 case Cell.CELL_TYPE_NUMERIC:

@@ -18,17 +18,17 @@ class NutSheetProcessorTest extends Specification {
         then:
 
         items.size() > 0
-        def aloeVera = items["Aloe Vera"]
+        def aloeVera = items["Aloe Vera_1000"]
         aloeVera.itemQuantity == 1000
         aloeVera.itemTax == 15
         aloeVera.itemPrice == 0.239
 
-        def zazvor = items["Zázvor v hořké čokoládě - Anglie"]
+        def zazvor = items["Zázvor v hořké čokoládě - Anglie_3000"]
         zazvor.itemQuantity == 3000
         zazvor.itemTax == 15
         zazvor.itemPrice == 0.121
 
-        def pinie = items["Piniové oříšky"]
+        def pinie = items["Piniové oříšky_1000"]
         pinie.itemQuantity == 1000
         pinie.itemTax == 15
         pinie.itemPrice == 0.732
