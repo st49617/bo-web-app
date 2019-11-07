@@ -1,9 +1,11 @@
 package cz.upce.webapp.controller;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 import cz.upce.webapp.dao.stock.repository.ItemRepository;
+import cz.upce.webapp.utils.xlsprocessors.AbstractSheetProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +47,7 @@ public class ImportController
     private ItemRepository itemRepository;
 
     @PostMapping("/upload")
-    public String singleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("cmb_value") String value, RedirectAttributes redirectAttributes)
+    public String singleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("supplierId") Integer supplierId, RedirectAttributes redirectAttributes)
     {
         if (file.isEmpty())
         {
@@ -64,12 +66,12 @@ public class ImportController
         try
         {
             //before import, remove all previous data according to the supplier
-            itemServiceImpl.deleteAllBySupplier(value);
+            itemServiceImpl.deleteAllBySupplier(supplierId);
 
             FileManipulator.saveFile(file, UPLOADING_DIR);
             redirectAttributes.addFlashAttribute("message", "File was successfully uploaded!");
             //select processor aligned with combobox value
-            ISheetProcessor sheetProcessor = selectProcessor(value);
+            ISheetProcessor sheetProcessor = selectProcessor(supplierId);
 
             sheetProcessor.importItemsFromFile(file, UPLOADING_DIR, itemRepository);
 
@@ -91,19 +93,17 @@ public class ImportController
         return "importer/notifier";
     }
 
-    private ISheetProcessor selectProcessor(String selectedProcessor)
+    @Autowired
+    List<AbstractSheetProcessor> processors;
+
+    private ISheetProcessor selectProcessor(Integer supplierId)
     {
-        switch (selectedProcessor)
-        {
-            case "Oříšek s.r.o.":
-                LOGGER.info("Selecting Orisek processor for parsing the documents!");
-                return nutSheetProcessor;
-            case "Country life":
-                LOGGER.info("Selecting Country processor for parsing the documents!");
-                return countrySheetProcessor;
-            default:
-                LOGGER.info("Selecting Default processor for parsing the documents!");
-                return nutSheetProcessor;
+        for (AbstractSheetProcessor processor : processors) {
+            if (processor.supplerId().equals(supplierId)) {
+                return processor;
+            }
         }
+        // Lets select first one
+        return processors.get(0);
     }
 }

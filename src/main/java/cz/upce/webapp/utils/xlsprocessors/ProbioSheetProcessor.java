@@ -1,7 +1,6 @@
 package cz.upce.webapp.utils.xlsprocessors;
 
 import cz.upce.webapp.dao.stock.model.Item;
-import cz.upce.webapp.dao.stock.model.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -21,12 +20,12 @@ public class ProbioSheetProcessor extends AbstractSheetProcessor
     }
 
     @Override
-    protected Integer supplerId() {
+    public Integer supplerId() {
         return 3;
     }
 
     @Override
-    public List<Item> disintegrateIntoItem(int rowIdx, List<String> sheetData, Supplier supplier) {
+    public List<Item> disintegrateIntoItem(int rowIdx, List<String> sheetData) {
         List<Item> itemsList = new ArrayList<>();
         //split values from list to array
         String[] values = sheetData.toArray(new String[0]);
@@ -37,7 +36,7 @@ public class ProbioSheetProcessor extends AbstractSheetProcessor
                 double itemQuantity = Double.parseDouble(itemQuantityStr)*1000;
                 double itemPrice = Double.parseDouble(values[10])/1000;
                 int itemTax = (int) (Double.parseDouble(values[9])*100);
-                itemsList.add(new Item(itemName, itemQuantity, itemPrice, itemTax, supplier));
+                itemsList.add(new Item(itemName, itemQuantity, itemPrice, itemTax, null));
             }
         }
         return itemsList;

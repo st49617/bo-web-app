@@ -33,11 +33,11 @@ public class ItemServiceImpl
         return itemRepository.findAllByItemNameIgnoreCaseContainingOrderByItemName(name);
     }
 
-    public void deleteAllBySupplier(String supplier)
+    public void deleteAllBySupplier(Integer supplierId)
     {
-        LOGGER.info("Starting to delete items from database for supplier: " + supplier + "!");
+        LOGGER.info("Starting to delete items from database for supplier: " + supplierId + "!");
         List<Item> itemList = itemRepository.findAll();
-        itemList = itemList.stream().filter(item -> item.getSupplier().getName().equals(supplier)).collect(Collectors.toList());
+        itemList = itemList.stream().filter(item -> item.getSupplier().getId().equals(supplierId)).collect(Collectors.toList());
 
         for (Item item : itemList)
         {

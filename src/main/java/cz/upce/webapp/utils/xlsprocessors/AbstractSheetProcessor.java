@@ -19,9 +19,9 @@ public abstract class AbstractSheetProcessor implements ISheetProcessor {
         return supplierRepository.getOne(supplerId());
     }
 
-    protected abstract Integer supplerId();
+    public abstract Integer supplerId();
 
 
     @Override
-    abstract public List<Item> disintegrateIntoItem(int rowIdx, List<String> rowData, Supplier supplier);
+    abstract public List<Item> disintegrateIntoItem(int rowIdx, List<String> rowData);
 }

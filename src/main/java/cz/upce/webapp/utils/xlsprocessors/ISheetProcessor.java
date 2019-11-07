@@ -35,6 +35,7 @@ public interface ISheetProcessor
         Row row;
         List<Item> allItems = new ArrayList();
 
+        Supplier supplier = supplier();
         //Iterate through all rows
         int rowIdx = 0;
         while (rowIterator.hasNext())
@@ -46,8 +47,13 @@ public interface ISheetProcessor
             parseRow(row, formulaEvaluator, rowData);
 
             if (!rowData.isEmpty()) {
-                List<Item> itemList = disintegrateIntoItem(rowIdx, rowData, supplier());
-                allItems.addAll(itemList);
+                List<Item> itemList = disintegrateIntoItem(rowIdx, rowData);
+                for (Item item : itemList) {
+                    if (item!=null) {
+                        item.setSupplier(supplier);
+                        allItems.add(item);
+                    }
+                }
             }
         }
         return allItems;
@@ -55,7 +61,7 @@ public interface ISheetProcessor
 
     Supplier supplier();
 
-    List<Item> disintegrateIntoItem(int rowIdx, List<String> rowData, Supplier supplier);
+    List<Item> disintegrateIntoItem(int rowIdx, List<String> rowData);
 
     default void importItemsFromFile(MultipartFile fileName, String filePath, ItemRepository itemRepository) throws IOException
     {
@@ -66,15 +72,7 @@ public interface ISheetProcessor
 
     default void importItemsFromFile(File fileToParse, ItemRepository itemRepository) throws IOException {
         List<Item> items = parseItems(fileToParse);
-
-        if (!items.isEmpty())
-        {
-            for (Item item : items)
-            {
-                //save object to the database
-                persistLoadedObject(item, itemRepository);
-            }
-        }
+        itemRepository.saveAll(items);
     }
 
     default Map<String, Item> parseItemsAsMap(File fileToParse) throws IOException {
@@ -104,7 +102,6 @@ public interface ISheetProcessor
         } else {
             sheet = workbook.getSheet(sheetName);
         }
-        int maxRowIndex = sheet.getRow(5).getPhysicalNumberOfCells();
         Iterator<Row> iterator = sheet.iterator();
         FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
 
@@ -148,19 +145,6 @@ public interface ISheetProcessor
     {
         stringBuilder.setLength(0);
     }
-
-    default void persistLoadedObject(Item item, ItemRepository itemRepository)
-    {
-        if (!validateImportedObject(item))
-        {
-            LOGGER.warn("Item: " + item + " was not validated and was not persisted!");
-            return;
-        }
-
-        itemRepository.save(item);
-        LOGGER.info("Item: " + item + " has been written into the database successfully!");
-    }
-
 
     default void parseRow(Row row, FormulaEvaluator formulaEvaluator, List<String> rowData)
     {

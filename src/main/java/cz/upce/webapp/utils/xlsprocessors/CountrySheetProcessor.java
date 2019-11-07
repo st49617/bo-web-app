@@ -5,17 +5,18 @@ import java.util.Arrays;
 import java.util.List;
 
 import cz.upce.webapp.dao.stock.model.Item;
-import cz.upce.webapp.dao.stock.model.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Tomas Kodym
  */
+@Component
 public class CountrySheetProcessor extends AbstractSheetProcessor
 {
 
@@ -34,7 +35,7 @@ public class CountrySheetProcessor extends AbstractSheetProcessor
     }
 
     @Override
-    public List<Item> disintegrateIntoItem(int rowIdx, List<String> rowData, Supplier supplier) {
+    public List<Item> disintegrateIntoItem(int rowIdx, List<String> rowData) {
         List<Item> items = new ArrayList<>();
         //Iterate through all rows
             if (isRowOmitted(rowIdx)) return items;
@@ -133,7 +134,7 @@ public class CountrySheetProcessor extends AbstractSheetProcessor
     }
 
     @Override
-    protected Integer supplerId() {
+    public Integer supplerId() {
         return 2;
     }
 

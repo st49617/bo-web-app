@@ -1,8 +1,6 @@
 package cz.upce.webapp.utils.xlsprocessors;
 
 import cz.upce.webapp.dao.stock.model.Item;
-import cz.upce.webapp.dao.stock.model.Supplier;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -25,7 +23,7 @@ public class BionebioSheetProcessor extends AbstractSheetProcessor
     }
 
     @Override
-    protected Integer supplerId() {
+    public Integer supplerId() {
         return 3;
     }
 
@@ -34,7 +32,7 @@ public class BionebioSheetProcessor extends AbstractSheetProcessor
     Double parsedEurValue = null;
 
     @Override
-    public List<Item> disintegrateIntoItem(int rowIdx, List<String> sheetData, Supplier supplier) {
+    public List<Item> disintegrateIntoItem(int rowIdx, List<String> sheetData) {
         List<Item> itemsList = new ArrayList<>();
 
         //split values from list to array
@@ -62,7 +60,7 @@ public class BionebioSheetProcessor extends AbstractSheetProcessor
                         itemPrice = eurValue * eurToCzk;
                     }
                     int itemTax = 15;
-                    itemsList.add(new Item(itemNameToUse, itemQuantity, itemPrice, itemTax, supplier));
+                    itemsList.add(new Item(itemNameToUse, itemQuantity, itemPrice, itemTax, null));
                 }
 
             }
