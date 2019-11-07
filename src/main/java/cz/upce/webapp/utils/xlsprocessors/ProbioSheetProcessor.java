@@ -36,6 +36,10 @@ public class ProbioSheetProcessor implements ISheetProcessor
         return OMITTED_ROW_INDEXES.contains(rowNumber);
     }
 
+    @Override
+    public String getSheetName() {
+        return "GASTRO+ BEZOBALU";
+    }
 
     @Override
     public List<Item> iterateSheetValues(FormulaEvaluator formulaEvaluator, Iterator<Row> rowIterator, int maxRow)
@@ -56,10 +60,6 @@ public class ProbioSheetProcessor implements ISheetProcessor
             parseRow(row, formulaEvaluator, rowData, maxRow);
 
             List<Item> itemList = disintegrateIntoItem(rowData, supplier);
-            for (Item item : itemList) {
-                item.setItemQuantity(item.getItemQuantity()*1000);
-                item.setItemPrice(item.getItemPrice()/1000);
-            }
             allItems.addAll(itemList);
         }
         return allItems;
@@ -70,14 +70,15 @@ public class ProbioSheetProcessor implements ISheetProcessor
         if (!sheetData.isEmpty()) {
             //split values from list to array
             String[] values = sheetData.toArray(new String[0]);
-            if (StringUtils.isNumeric(values[6])) {
-                String itemName = values[5];
-                double itemQuantity = Double.parseDouble(values[6]);
-                double itemPrice = Double.parseDouble(values[7]);
-                int itemTax = Integer.parseInt(values[8]);
+            if (StringUtils.isNumeric(values[7])) {
+                String itemName = values[1].trim();
+                String itemQuantityStr = values[7].replaceFirst("\\s+kg","");
+                double itemQuantity = Double.parseDouble(itemQuantityStr)*1000;
+                double itemPrice = Double.parseDouble(values[9])/1000;
+                int itemTax = (int) (Double.parseDouble(values[8])*100);
                 itemsList.add(new Item(itemName, itemQuantity, itemPrice, itemTax, supplier));
             } else
-                LOGGER.warn("Item was not created, because of non numeric value in quantity column!");
+                LOGGER.warn("Item was not created, because of non numeric value in price column!" + values[9]);
         }
         return itemsList;
 

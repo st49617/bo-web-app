@@ -10,7 +10,7 @@ class ProbioSheetProcessorTest extends Specification {
     SupplierRepository supplierRepo = Mock()
 
     def "IterateSheetValues"() {
-        def f = getClass().getResource("/orisek_01.03.2019.xls").getFile()
+        def f = getClass().getResource("/190901_cenik_PROBIO_zari_rijen_2019.xls").getFile()
         supplierRepo.getOne(_) >> new Supplier()
 
         when:
@@ -18,20 +18,15 @@ class ProbioSheetProcessorTest extends Specification {
         then:
 
         items.size() > 0
-        def aloeVera = items[" Pšenice červená  3 kg BIOHARMONIE"]
-        aloeVera.itemQuantity == 500
-        aloeVera.itemTax == 15
-        aloeVera.itemPrice == 0.239
+        def item1 = items["Pšenice červená  3 kg BIOHARMONIE_3000"]
+        item1.itemQuantity == 3000
+        item1.itemTax == 15
+        item1.itemPrice == 0.1137
 
-        def zazvor = items["Zázvor v hořké čokoládě - Anglie"]
-        zazvor.itemQuantity == 3000
-        zazvor.itemTax == 15
-        zazvor.itemPrice == 0.121
-
-        def pinie = items["Piniové oříšky"]
-        pinie.itemQuantity == 1000
-        pinie.itemTax == 15
-        pinie.itemPrice == 0.732
+        def item2 = items["Semínka slunečnicová  2 kg BIOHARMONIE_2000"]
+        item2.itemQuantity == 2000
+        item2.itemTax == 15
+        item2.itemPrice == 0.156
 
 
     }

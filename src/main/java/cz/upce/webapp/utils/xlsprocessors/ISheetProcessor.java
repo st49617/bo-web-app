@@ -54,7 +54,7 @@ public interface ISheetProcessor
 
     default Map<String, Item> parseItemsAsMap(File fileToParse) throws IOException {
         List<Item> items = parseItems(fileToParse);
-        Map<String, Item> map = new HashMap<>();
+        Map<String, Item> map = new TreeMap<String, Item>();
         for (Item item : items) {
             String key = item.getItemName() + "_" + item.getItemQuantity().intValue() + (item.bio ? "_BIO" : "");
             map.put(key, item);
@@ -71,9 +71,16 @@ public interface ISheetProcessor
             workbook = new XSSFWorkbook(excelFile);
 
         workbook.setMissingCellPolicy(Row.CREATE_NULL_AS_BLANK);
-        Sheet datatypeSheet = workbook.getSheetAt(0);
-        int maxRowIndex = workbook.getSheetAt(0).getRow(5).getPhysicalNumberOfCells();
-        Iterator<Row> iterator = datatypeSheet.iterator();
+
+        String sheetName = getSheetName();
+        Sheet sheet;
+        if (sheetName==null) {
+            sheet = workbook.getSheetAt(0);
+        } else {
+            sheet = workbook.getSheet(sheetName);
+        }
+        int maxRowIndex = sheet.getRow(5).getPhysicalNumberOfCells();
+        Iterator<Row> iterator = sheet.iterator();
         FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
 
         LOGGER.info("Started parsing the values from the file with:" + this.getClass().getName());
@@ -83,6 +90,10 @@ public interface ISheetProcessor
         List<Item> validatedItems = items.stream().filter(i -> validateImportedObject(i)).collect(Collectors.toList());
         return validatedItems;
     }
+
+    default String getSheetName() {
+        return null;
+    };
 
     default boolean isRowEmpty(Row row)
     {

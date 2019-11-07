@@ -14,9 +14,12 @@
     AND plus %XXX% all search keywords
     download filled in order Excel
     Finish implementation of other providers
+        Probio: DONE
     Shopping cart to table
     Shopping cart to display shipping free limit
     Send e-mail with order
     User account editation form
+
+    Parse expiration period
     -->
 </databaseChangeLog>
