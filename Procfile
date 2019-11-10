@@ -1,1 +1,1 @@
-web:java -agentlib:jdwp=transport=dt_socket,server=y,address=9090,suspend=n -jar target/web-app-0.0.1-SNAPSHOT.jar
+web:java  -agentlib:jdwp=transport=dt_socket,server=y,address=9090,suspend=n -jar target/web-app-0.0.1-SNAPSHOT.jar
