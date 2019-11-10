@@ -24,7 +24,7 @@ public class BionebioSheetProcessor extends AbstractSheetProcessor
 
     @Override
     public Integer supplerId() {
-        return 3;
+        return 4;
     }
 
     Pattern nameWithWeight = Pattern.compile("^(?<itemName>.*?)(?<weight>[\\d\\,]+)\\skg$");

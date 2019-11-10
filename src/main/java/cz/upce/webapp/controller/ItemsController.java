@@ -64,7 +64,7 @@ public class ItemsController
 
     private List<Integer> pages(int countOfItems)
     {
-        int lastPageNumber = (int)Math.ceil(countOfItems / itemsPerPage);
+        int lastPageNumber = (int) Math.ceil((double)countOfItems / itemsPerPage);
         List<Integer> pages = IntStream.rangeClosed(1, lastPageNumber)
                 .boxed()
                 .collect(Collectors.toList());
