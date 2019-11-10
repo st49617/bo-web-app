@@ -102,6 +102,9 @@ public interface ISheetProcessor
         } else {
             sheet = workbook.getSheet(sheetName);
         }
+        if (sheet==null) {
+            sheet = workbook.getSheetAt(sheetIndexIfNameFails());
+        }
         Iterator<Row> iterator = sheet.iterator();
         FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
 
@@ -116,6 +119,10 @@ public interface ISheetProcessor
     default String getSheetName() {
         return null;
     };
+
+    default Integer sheetIndexIfNameFails() {
+        return null;
+    }
 
     default boolean isRowEmpty(Row row)
     {
@@ -174,4 +181,6 @@ public interface ISheetProcessor
             }
         }
     }
+
+
 }

@@ -42,4 +42,8 @@ public class ProbioSheetProcessor extends AbstractSheetProcessor
         return itemsList;
     }
 
+    @Override
+    public Integer sheetIndexIfNameFails() {
+        return 4;
+    }
 }
