@@ -12,6 +12,9 @@ import cz.upce.webapp.dao.stock.model.Item;
 import cz.upce.webapp.dao.stock.model.Supplier;
 import cz.upce.webapp.dao.stock.repository.ItemRepository;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -89,7 +92,17 @@ public interface ISheetProcessor
         Workbook workbook;
 
         if (fileToParse.getName().contains(XLS_EXTENSIONS))
-            workbook = new HSSFWorkbook(excelFile);
+            try {
+                workbook = new HSSFWorkbook(excelFile);
+            } catch (OfficeXmlFileException e) {
+                OPCPackage pkg = null;
+                try {
+                    pkg = OPCPackage.open(new FileInputStream(fileToParse));
+                    workbook = new XSSFWorkbook(pkg);
+                } catch (InvalidFormatException e1) {
+                    throw new IllegalStateException();
+                }
+            }
         else
             workbook = new XSSFWorkbook(excelFile);
 
