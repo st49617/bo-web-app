@@ -41,7 +41,8 @@ public class Item implements Serializable
     @ManyToOne(cascade = CascadeType.MERGE, optional = false)
     private Supplier supplier;
 
-    public Item() { }
+    public Item() {
+    }
 
     public Item(String itemName, Double itemQuantity, Double itemPrice, Integer itemTax, Supplier supplier)
     {

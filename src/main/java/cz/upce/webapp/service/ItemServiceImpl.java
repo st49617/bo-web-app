@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import cz.upce.webapp.dao.stock.model.Item;
+import cz.upce.webapp.dao.stock.repository.ItemJdbcRepository;
 import cz.upce.webapp.dao.stock.repository.ItemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,15 +23,17 @@ public class ItemServiceImpl
 
     @Autowired
     private ItemRepository itemRepository;
+    @Autowired
+    private ItemJdbcRepository itemJdbcRepository;
 
     public Optional<Item> findById(Integer id)
     {
         return itemRepository.findById(id);
     }
 
-    public List<Item> findFilteredByName(String name)
+    public List<Item> findFilteredByName(String keywords)
     {
-        return itemRepository.findAllByItemNameIgnoreCaseContainingOrderByItemName(name);
+        return itemJdbcRepository.findAllUsingSearch(keywords);
     }
 
     public void deleteAllBySupplier(Integer supplierId)
