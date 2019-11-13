@@ -14,18 +14,18 @@ import static org.junit.Assert.assertNotNull;
 
 public class DashboardUITest
 {
-    @Autowired
-    private DashboardPage dashboardPage;
-
-    @Autowired
-    private LoginPage loginPage;
-
-    @Test
-    public void dashboardPageCorrectTitle()
-    {
-        loginPage.visit();
-        loginPage.submitLoginForm("test@test.cz", "test");
-
-        assertEquals(dashboardPage.getTitle(), loginPage.driver.getTitle());
-    }
+//    @Autowired
+//    private DashboardPage dashboardPage;
+//
+//    @Autowired
+//    private LoginPage loginPage;
+//
+//    @Test
+//    public void dashboardPageCorrectTitle()
+//    {
+//        loginPage.visit();
+//        loginPage.submitLoginForm("test@test.cz", "test");
+//
+//        assertEquals(dashboardPage.getTitle(), loginPage.driver.getTitle());
+//    }
 }
