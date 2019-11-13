@@ -37,44 +37,4 @@ class ItemJdbcRepositoryTest extends Specification {
     }
 
 
-    @Unroll
-    def "When #items in db 'mandle' search returns #expectedItemsSize items"() {
-
-        given:
-        def itemsToCreate = items.split(",")
-        for (String item  : itemsToCreate) {
-            creator.save(new Item(itemName: item))
-        }
-
-        when:
-            def itemsBy = itemJdbcRepository.findAllByItemNameIgnoreCaseContainingOrderByItemName("mandle")
-        then:
-            itemsBy.size() == expectedItemsSize
-
-        where:
-            items | expectedItemsSize
-            "mandle A,mandle C" | 2
-            "mandle,kešu" | 1
-            "loupané mandle,kešu,rozinky" | 1
-
-    }
-    def "mandle A,mandle C=2"() { expect: oneTest()}
-    def "mandle,kešu=1"() { expect: oneTest()}
-    def "loupané mandle,kešu,rozinky=1"() { expect: oneTest()}
-
-    def oneTest() {
-        def testArguments = testName.methodName.split("=")
-        def itemsToCreate = testArguments[0].split(",")
-        def expectedSizeStr = testArguments[1]
-        def expectedItemsSize = Integer.valueOf(expectedSizeStr)
-
-        for (String item  : itemsToCreate) {
-            creator.save(new Item(itemName: item))
-        }
-
-        def itemsBy = itemJdbcRepository.findAllByItemNameIgnoreCaseContainingOrderByItemName("mandle")
-        return (itemsBy.size() == expectedItemsSize)
-
-    }
-
 }
