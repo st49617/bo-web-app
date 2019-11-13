@@ -8,8 +8,7 @@ import org.openqa.selenium.support.FindBy;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PageObject
-public class LoginPage
-{
+public class LoginPage {
     public static final String INVALID_LOGIN_ERROR_MESSAGE = "Invalid login credentials!";
     String url = "http://localhost:9000";
 
@@ -19,26 +18,25 @@ public class LoginPage
     @Autowired
     private DashboardPage dashboardPage;
 
+    @FindBy(id = "inputEmail")
+    WebElement inputEmail;
+
     @FindBy(id = "inputPassword")
     WebElement inputPassword;
 
-    public String getLoginFormName()
-    {
+    public String getLoginFormName() {
         return driver.findElement(By.className("card-header")).getText();
     }
 
-    public String getSubmitName()
-    {
+    public String getSubmitName() {
         return driver.findElement(By.className("btn-primary")).getText();
     }
 
-    public String getFormSubmitLink()
-    {
+    public String getFormSubmitLink() {
         return driver.findElement(By.id("loginForm")).getAttribute("action");
     }
 
-    public DashboardPage submitLoginForm(String email, String password)
-    {
+    public DashboardPage submitLoginForm(String email, String password) {
         fillEmail(email);
         fillPassword(password);
         driver.findElement(By.id("login-submit")).click();
@@ -54,8 +52,7 @@ public class LoginPage
     }
 
     private LoginPage fillEmail(String email) {
-        driver.findElement(By.id("inputEmail"))
-                .sendKeys(email);
+        inputEmail.sendKeys(email);
         return this;
     }
 
@@ -63,23 +60,19 @@ public class LoginPage
         return driver.findElement(By.id("error-message")).getText();
     }
 
-    public String getExpectedTitle()
-    {
+    public String getExpectedTitle() {
         return "Nuts E-Shop Login";
     }
 
-    public String getExpectedFormName()
-    {
+    public String getExpectedFormName() {
         return "Login";
     }
 
-    public String getExpectedSubmitName()
-    {
+    public String getExpectedSubmitName() {
         return "Login";
     }
 
-    public String getFormAction()
-    {
+    public String getFormAction() {
         return "http://localhost:9000" +
                 "/loginafter";
     }
