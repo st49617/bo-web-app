@@ -1,5 +1,6 @@
 package cz.upce.webapp.controller;
 
+import cz.upce.webapp.dao.stock.model.Item;
 import cz.upce.webapp.service.CartServiceImpl;
 import cz.upce.webapp.service.ItemServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author Tomas Kodym
@@ -32,7 +34,9 @@ public class CartController
     @GetMapping("/cart")
     public String showCart(Model model)
     {
-        model.addAttribute("totalItemsCount", cartService.getItemsInCart().size());
+        Map<Item, Integer> itemsInCart = cartService.getItemsInCart();
+
+        model.addAttribute("totalItemsCount", itemsInCart.size());
 
         model.addAttribute("nutItems", cartService.getNutItemsOnly());
         model.addAttribute("totalNuts", cartService.getTotalNuts(false));

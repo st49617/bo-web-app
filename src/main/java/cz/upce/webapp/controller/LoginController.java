@@ -34,7 +34,7 @@ public class LoginController
         try
         {
             securityService.login(user.getEmail(), user.getPassword());
-            response.sendRedirect("/dashboard");
+            response.sendRedirect("/items/1");
         }
         catch (AuthenticationException | IOException e)
         {
