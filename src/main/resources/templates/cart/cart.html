@@ -14,6 +14,7 @@
 
     <div th:if="${weightNuts} > 0">
         <h1>Produkty od dodavatele Oříšek s.r.o.</h1>
+        <h2><a href="/download/1">Stáhnout ceník</a></h2>
         <hr>
         <div th:each="item: ${nutItems}">
             <h2 th:text="${item.getKey().getItemName()}">Item name</h2>
@@ -37,6 +38,7 @@
         <br>
         <br>
         <h1>Produkty od dodavatele Country life</h1>
+        <h2><a href="/download/2">Stáhnout ceník</a></h2>
         <hr>
         <div th:each="item: ${countryLifeItems}">
             <h2 th:text="${item.getKey().getItemName()}">Item name</h2>

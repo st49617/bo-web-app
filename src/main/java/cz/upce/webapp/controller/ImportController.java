@@ -46,6 +46,15 @@ public class ImportController
     @Autowired
     private ItemRepository itemRepository;
 
+    @Autowired
+    private StoredFileRepository storedFileRepository;
+
+    @Autowired
+    private SupplierRepository supplierRepository;
+
+    @Autowired
+    private StoredFileStorageService storedFileService;
+
     @PostMapping("/upload")
     public String singleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("supplierId") Integer supplierId, RedirectAttributes redirectAttributes)
     {
@@ -68,6 +77,9 @@ public class ImportController
             //before import, remove all previous data according to the supplier
             itemServiceImpl.deleteAllBySupplier(supplierId);
 
+
+            Supplier s = supplierRepository.getOne(supplierId);
+
             FileManipulator.saveFile(file, UPLOADING_DIR);
             redirectAttributes.addFlashAttribute("message", "File was successfully uploaded!");
             //select processor aligned with combobox value
@@ -75,7 +87,23 @@ public class ImportController
 
             sheetProcessor.importItemsFromFile(file, UPLOADING_DIR, itemRepository);
 
+            storedFileService.storeFile(file);
+
+            Path filePath = FileManipulator.getFilePath(file, UPLOADING_DIR);
+            StoredFile storedFile = new StoredFile(file.getContentType(), FileUtils.readFileToByteArray(filePath.toFile()), file.getName());
+            storedFileRepository.save(storedFile);
+
+            if (s.getPricelist()!=null) {
+                Integer priceListId = s.getPricelist().getId();
+                if (priceListId !=null) {
+                    storedFileRepository.deleteById(priceListId);
+                }
+            }
+            s.setPricelist(storedFile);
+            supplierRepository.save(s);
+
             FileManipulator.deleteFile(file, UPLOADING_DIR);
+
 
         }
         catch (IOException e)
@@ -105,5 +133,17 @@ public class ImportController
         }
         // Lets select first one
         return processors.get(0);
+    }
+
+
+    @GetMapping("/download/{fileId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Integer fileId) {
+        // Load file from database
+        StoredFile dbFile = storedFileService.getFile(fileId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(dbFile.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + dbFile.getFileName() + "\"")
+                .body(new ByteArrayResource(dbFile.getData()));
     }
 }
