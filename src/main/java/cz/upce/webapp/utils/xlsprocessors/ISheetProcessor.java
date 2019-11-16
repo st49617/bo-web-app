@@ -55,6 +55,7 @@ public interface ISheetProcessor
                     if (item!=null) {
                         item.setSupplier(supplier);
                         allItems.add(item);
+                        item.setRowIdx(rowIdx-1);
                     }
                 }
             }
@@ -87,27 +88,38 @@ public interface ISheetProcessor
         }
         return map;
     }
-    default List<Item> parseItems(File fileToParse) throws IOException {
-        FileInputStream excelFile = new FileInputStream(fileToParse);
-        Workbook workbook;
+    default Workbook fillOrder(File fileToParse, Map<Item, Integer> orderedItems){
+        ExcelFile parsedExcel = getWorkbook(fileToParse);
+        Workbook workbook = parsedExcel.getWorkbook();
+        for (Map.Entry<Item, Integer> itemIntegerEntry : orderedItems.entrySet()) {
+            Sheet sheet = getSheet(workbook);
+            Item item = itemIntegerEntry.getKey();
+            Row row = sheet.getRow(item.getRowIdx());
+            row.createCell(4).setCellValue(itemIntegerEntry.getValue());
+        }
+        try {
+            parsedExcel.getExcelFile().close();
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot close excel file", e);
+        }
+        return parsedExcel.getWorkbook();
+    }
+    default List<Item> parseItems(File fileToParse) {
+        Workbook workbook = getWorkbook(fileToParse).getWorkbook();
 
-        if (fileToParse.getName().contains(XLS_EXTENSIONS))
-            try {
-                workbook = new HSSFWorkbook(excelFile);
-            } catch (OfficeXmlFileException e) {
-                OPCPackage pkg = null;
-                try {
-                    pkg = OPCPackage.open(new FileInputStream(fileToParse));
-                    workbook = new XSSFWorkbook(pkg);
-                } catch (InvalidFormatException e1) {
-                    throw new IllegalStateException();
-                }
-            }
-        else
-            workbook = new XSSFWorkbook(excelFile);
+        Sheet sheet = getSheet(workbook);
+        Iterator<Row> iterator = sheet.iterator();
+        FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
 
-        workbook.setMissingCellPolicy(Row.CREATE_NULL_AS_BLANK);
+        LOGGER.info("Started parsing the values from the file with:" + this.getClass().getName());
 
+        List<Item> items = iterateSheetValues(formulaEvaluator, iterator);
+
+        List<Item> validatedItems = items.stream().filter(i -> validateImportedObject(i)).collect(Collectors.toList());
+        return validatedItems;
+    }
+
+    default Sheet getSheet(Workbook workbook) {
         String sheetName = getSheetName();
         Sheet sheet;
         if (sheetName==null) {
@@ -118,15 +130,31 @@ public interface ISheetProcessor
         if (sheet==null) {
             sheet = workbook.getSheetAt(sheetIndexIfNameFails());
         }
-        Iterator<Row> iterator = sheet.iterator();
-        FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+        return sheet;
+    }
 
-        LOGGER.info("Started parsing the values from the file with:" + this.getClass().getName());
+    default ExcelFile getWorkbook(File fileToParse)  {
+        try {
+            FileInputStream excelFile = new FileInputStream(fileToParse);
+            Workbook workbook;
 
-        List<Item> items = iterateSheetValues(formulaEvaluator, iterator);
+            if (fileToParse.getName().contains(XLS_EXTENSIONS))
+                try {
+                    workbook = new HSSFWorkbook(excelFile);
+                } catch (OfficeXmlFileException e) {
+                    OPCPackage pkg = null;
+                        pkg = OPCPackage.open(new FileInputStream(fileToParse));
+                        workbook = new XSSFWorkbook(pkg);
+                }
+            else
+                workbook = new XSSFWorkbook(excelFile);
 
-        List<Item> validatedItems = items.stream().filter(i -> validateImportedObject(i)).collect(Collectors.toList());
-        return validatedItems;
+            workbook.setMissingCellPolicy(Row.CREATE_NULL_AS_BLANK);
+
+            return new ExcelFile(workbook, excelFile);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot open workbook", e);
+        }
     }
 
     default String getSheetName() {
@@ -175,25 +203,58 @@ public interface ISheetProcessor
             cell = row.getCell(i);
             //Parse towards the cell type
 
-            switch (cell.getCellType())
-            {
-                case Cell.CELL_TYPE_NUMERIC:
-                    rowData.add(String.valueOf(cell.getNumericCellValue()).replaceFirst("\\.0+$", EMPTY_SPACE));
-                    break;
-                case Cell.CELL_TYPE_STRING:
-                    rowData.add(cell.getStringCellValue());
-                    break;
-                case Cell.CELL_TYPE_BLANK:
-                    rowData.add(EMPTY_SPACE);
-                    break;
-                case Cell.CELL_TYPE_FORMULA:
-                    rowData.add(formulaEvaluator.evaluate(cell).formatAsString().replaceFirst("\\.0+$", EMPTY_SPACE));
-                    break;
-                default:
-                    rowData.add(String.valueOf(cell));
-            }
+            String value = getCellValue(formulaEvaluator, cell);
+            rowData.add(value);
+
         }
     }
 
+    default String getCellValue(FormulaEvaluator formulaEvaluator, Cell cell) {
+        String value;
+        switch (cell.getCellType())
+        {
+            case Cell.CELL_TYPE_NUMERIC:
+                value = String.valueOf(cell.getNumericCellValue()).replaceFirst("\\.0+$", EMPTY_SPACE);
+                break;
+            case Cell.CELL_TYPE_STRING:
+                value = cell.getStringCellValue();
+                break;
+            case Cell.CELL_TYPE_BLANK:
+                value = EMPTY_SPACE;
+                break;
+            case Cell.CELL_TYPE_FORMULA:
+                value = formulaEvaluator.evaluate(cell).formatAsString().replaceFirst("\\.0+$", EMPTY_SPACE);
+                break;
+            default:
+                value = String.valueOf(cell);
+        }
+        return value;
+    }
 
+
+    class ExcelFile {
+        private Workbook workbook;
+        private FileInputStream excelFile;
+
+        public ExcelFile(Workbook workbook, FileInputStream excelFile) {
+            this.workbook = workbook;
+            this.excelFile = excelFile;
+        }
+
+        public Workbook getWorkbook() {
+            return workbook;
+        }
+
+        public void setWorkbook(Workbook workbook) {
+            this.workbook = workbook;
+        }
+
+        public FileInputStream getExcelFile() {
+            return excelFile;
+        }
+
+        public void setExcelFile(FileInputStream excelFile) {
+            this.excelFile = excelFile;
+        }
+    }
 }

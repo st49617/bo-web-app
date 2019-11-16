@@ -2,6 +2,7 @@ package cz.upce.webapp.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import cz.upce.webapp.dao.stock.repository.ItemRepository;
@@ -18,9 +19,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import cz.upce.webapp.service.ItemServiceImpl;
 import cz.upce.webapp.utils.FileManipulator;
-import cz.upce.webapp.utils.xlsprocessors.CountrySheetProcessor;
-import cz.upce.webapp.utils.xlsprocessors.ISheetProcessor;
-import cz.upce.webapp.utils.xlsprocessors.NutSheetProcessor;
 
 /**
  * Class used to importItemsFromFile the .xls or .xlsx file
@@ -38,7 +36,13 @@ public class ImportController
     private ItemServiceImpl itemServiceImpl;
 
     @Autowired
+    CartServiceImpl cartService;
+
+    @Autowired
     NutSheetProcessor nutSheetProcessor;
+
+    @Autowired
+    BionebioSheetProcessor bionebioSheetProcessor;
 
     @Autowired
     CountrySheetProcessor countrySheetProcessor;
@@ -90,7 +94,7 @@ public class ImportController
             storedFileService.storeFile(file);
 
             Path filePath = FileManipulator.getFilePath(file, UPLOADING_DIR);
-            StoredFile storedFile = new StoredFile(file.getContentType(), FileUtils.readFileToByteArray(filePath.toFile()), file.getName());
+            StoredFile storedFile = new StoredFile(file.getContentType(), FileUtils.readFileToByteArray(filePath.toFile()), file.getOriginalFilename());
             storedFileRepository.save(storedFile);
 
             if (s.getPricelist()!=null) {
@@ -136,14 +140,43 @@ public class ImportController
     }
 
 
-    @GetMapping("/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable Integer fileId) {
+    @GetMapping("/download/{supplierId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Integer supplierId) {
         // Load file from database
-        StoredFile dbFile = storedFileService.getFile(fileId);
+
+        StoredFile dbFile = storedFileService.getFile(supplierRepository.getOne(supplierId).getPricelist().getId());
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(dbFile.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + dbFile.getFileName() + "\"")
                 .body(new ByteArrayResource(dbFile.getData()));
+    }
+    @GetMapping("/download-filled/{supplierId}")
+    public ResponseEntity<Resource> downloadFilledFile(@PathVariable Integer supplierId) {
+
+        try {
+
+            // Load file from database
+            StoredFile dbFile = storedFileService.getFile(supplierRepository.getOne(supplierId).getPricelist().getId());
+
+        String filename = UPLOADING_DIR  + RandomStringUtils.randomAlphabetic(8)+"-" + dbFile.getFileName();
+            FileUtils.writeByteArrayToFile(new File(filename), dbFile.getData());
+
+        Map<Item, Integer> orderedItems = cartService.getBionebioItemsOnly();
+        Workbook workbook = bionebioSheetProcessor.fillOrder(new File(filename), orderedItems);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            workbook.write(bos);
+        } finally {
+            bos.close();
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(dbFile.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + dbFile.getFileName() + "\"")
+                .body(new ByteArrayResource(bos.toByteArray()));
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot write file", e);
+        }
+
     }
 }

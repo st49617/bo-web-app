@@ -47,6 +47,11 @@ public class CartController
         model.addAttribute("totalCountryLife", cartService.getTotalCountryLife(false));
         model.addAttribute("totalCountryLifeTax", cartService.getTotalCountryLife(true));
         model.addAttribute("weightCountryLife", cartService.getWeightCountryLife());
+
+        model.addAttribute("bionebioItems", cartService.getBionebioItemsOnly());
+        model.addAttribute("totalBionebio", cartService.getTotalBionebio(false));
+        model.addAttribute("totalBionebioTax", cartService.getTotalBionebio(true));
+        model.addAttribute("weightBionebio", cartService.getWeightBionebio());
         return "cart/cart";
     }
 

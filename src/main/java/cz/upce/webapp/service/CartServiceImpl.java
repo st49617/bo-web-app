@@ -82,6 +82,19 @@ public class CartServiceImpl
         return countryLifeItems;
     }
 
+    public Map<Item, Integer> getBionebioItemsOnly()
+    {
+        Map<Item, Integer> bioNebioItems = new HashMap<>();
+
+        getItemsInCart().forEach((item, count) -> {
+            if(item.getSupplier().getId() == 4){
+                bioNebioItems.put(item, count);
+            }
+        });
+
+        return bioNebioItems;
+    }
+
     public void checkout()
     {
         OrderForm order = new OrderForm();
@@ -131,6 +144,13 @@ public class CartServiceImpl
                 .reduce(Double::sum)
                 .orElse(0.0);
     }
+    public Double getTotalBionebio(boolean withTax)
+    {
+        return getBionebioItemsOnly().entrySet().stream()
+                .map(entry ->countPrice(entry.getKey(), entry.getValue(), withTax))
+                .reduce(Double::sum)
+                .orElse(0.0);
+    }
 
     public Double getWeightNuts()
     {
@@ -143,6 +163,13 @@ public class CartServiceImpl
     public Double getWeightCountryLife()
     {
         return getCountryLifeItemsOnly().entrySet().stream()
+                .map(entry -> Double.valueOf(entry.getKey().getItemQuantity()) * entry.getValue())
+                .reduce(Double::sum)
+                .orElse(0.0);
+    }
+    public Double getWeightBionebio()
+    {
+        return getBionebioItemsOnly().entrySet().stream()
                 .map(entry -> Double.valueOf(entry.getKey().getItemQuantity()) * entry.getValue())
                 .reduce(Double::sum)
                 .orElse(0.0);

@@ -99,6 +99,55 @@
     </div>
 
 
+
+    <div th:if="${weightBionebio} > 0">
+        <h1>Produkty od dodavatele Bionebio</h1>
+        <h2><a href="/download/4">Stáhnout prázdný ceník</a></h2>
+        <h2><a href="/download-filled/4">Stáhnout vyplněný ceník</a></h2>
+        <hr>
+        <table border="1" cellpadding="5">
+            <tr>
+                <th>Produkt</th>
+                <th>Objednané množství</th>
+                <th>Velikost balení (kg)</th>
+                <th>Cena za kg<br>(Bez DPH)</th>
+                <th>Cena za kg<br>(s DPH)</th>
+                <th>Cena celkem<br>(Bez DPH)</th>
+                <th>Cena celkem<br>(s DPH)</th>
+                <th>Akce</th>
+            </tr>
+            <tr th:each="item: ${bionebioItems}">
+                <td th:text="${item.getKey().getItemName()}">Item name</td>
+                <td th:text="${item.getValue()}">Quantity</td>
+                <td th:text="${item.getKey().getItemQuantity()/1000}">Quantity</td>
+                <td th:text="${item.getKey().getItemPrice()*1000}">Quantity</td>
+                <td th:text="${#numbers.formatDecimal(item.getKey().getItemPrice()*1000*(1+item.getKey().getItemTax()*0.01), 0, 1)}">Quantity</td>
+                <td th:text="${#numbers.formatDecimal(item.getKey().getItemQuantity()*item.getValue()*item.getKey().getItemPrice(),0,1)}">Quantity</td>
+                <td th:text="${#numbers.formatDecimal(item.getKey().getItemQuantity()*item.getValue()*item.getKey().getItemPrice()*(1+item.getKey().getItemTax()*0.01), 0, 1)}">Quantity</td>
+                <td>
+                    <a th:href="@{'/cart/addItem/' + ${item.getKey().getItemId()}}">Zvýšit počet</a>
+                    <br>
+                    <a th:href="@{'/cart/removeItem/' + ${item.getKey().getItemId()}}">Snížit počet</a>
+                </td>
+            </tr>
+        </table>
+        <div>
+            <p>Celková váha: <span th:text="${weightBionebio}"></span>g</p>
+            <p>Celková cena bez DPH: <span th:text="${#numbers.formatDecimal(totalBionebio,0,1)}"></span>,- Kč</p>
+            <p>Celková cena s DPH: <span th:text="${#numbers.formatDecimal(totalBionebioTax,0,1)}"></span>,- Kč</p>
+
+            <p th:if="(3000-${totalBionebioTax}) &gt; 0"><b style="color:red">K dopravě zdarma (nad 3000) zbývá: <span
+                    th:text="${#numbers.formatDecimal(3000-totalBionebioTax,0,1)}"></span>,- Kč</b></p>
+            <p th:if="3000-${totalBionebioTax} &lt; 0"><b style="color:green">Doprava zdarma (nad 3000) navíc: <span
+                    th:text="${#numbers.formatDecimal(totalBionebioTax - 3000,0,1)}"></span>,- Kč</b></p>
+        </div>
+        <hr>
+    </div>
+
+
+
+
+
     <div th:if="${totalItemsCount} > 0">
         <a th:href="@{'/cart/checkout'}">Koupit</a>
     </div>

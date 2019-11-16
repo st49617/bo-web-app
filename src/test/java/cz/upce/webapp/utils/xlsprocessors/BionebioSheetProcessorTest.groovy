@@ -1,8 +1,9 @@
 package cz.upce.webapp.utils.xlsprocessors
 
-
+import cz.upce.webapp.dao.stock.model.Item
 import cz.upce.webapp.dao.stock.model.Supplier
 import cz.upce.webapp.dao.stock.repository.SupplierRepository
+import org.apache.poi.ss.usermodel.Workbook
 import spock.lang.Specification
 
 import static cz.upce.webapp.utils.xlsprocessors.AbstractSheetProcessor.EUR_TO_CZK
@@ -36,6 +37,29 @@ class BionebioSheetProcessorTest extends Specification {
         item3.itemTax == 15
         item3.itemPrice == 0.61
 
+
+    }
+
+    def "Make Order"() {
+        def f = getClass().getResource("/OL_bio_nebio_11_2019.xls").getFile()
+
+        def processor = new BionebioSheetProcessor(supplierRepository: supplierRepo)
+        def items = processor.parseItems(new File(f))
+
+        supplierRepo.getOne(_) >> new Supplier()
+
+        when:
+        Map<Item, Integer> orderedItems = new TreeMap<>();
+        orderedItems.put(items.get(0), 3)
+        orderedItems.put(items.get(3), 1)
+
+        Workbook workbook = processor.fillOrder(new File(f), orderedItems)
+        def outputStream = new FileOutputStream("/data/tmp/OL_bio_nebio_11_2019.xls")
+        workbook.write(outputStream)
+
+        outputStream.close()
+        then:
+        true
 
     }
 }
