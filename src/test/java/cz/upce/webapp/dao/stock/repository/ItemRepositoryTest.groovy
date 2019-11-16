@@ -11,14 +11,9 @@ import org.springframework.context.annotation.Import
 import spock.lang.Specification
 import spock.lang.Unroll
 
-@DataJpaTest
-@Import(Creator.class)
-class ItemRepositoryTest extends Specification {
-
-    @Rule TestName testName = new TestName()
+class ItemRepositoryTest extends AbstractJPATest {
 
     @Autowired ItemRepository itemRepository;
-    @Autowired Creator creator
 
     def "test"() {
 

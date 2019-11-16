@@ -1,7 +1,10 @@
 package cz.upce.webapp.dao.stock.model;
 
+import org.hibernate.ejb.HibernateEntityManagerFactory;
+
 import javax.transaction.Transactional;
 import java.io.Serializable;
+import java.sql.Blob;
 import javax.persistence.*;
 
 /**
@@ -21,6 +24,9 @@ public class Supplier implements Serializable
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
+    @OneToOne(cascade = CascadeType.ALL, targetEntity = StoredFile.class, fetch = FetchType.LAZY)
+    private StoredFile pricelist;
+
     public Integer getId()
     {
         return id;
@@ -39,5 +45,13 @@ public class Supplier implements Serializable
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public StoredFile getPricelist() {
+        return pricelist;
+    }
+
+    public void setPricelist(StoredFile pricelist) {
+        this.pricelist = pricelist;
     }
 }

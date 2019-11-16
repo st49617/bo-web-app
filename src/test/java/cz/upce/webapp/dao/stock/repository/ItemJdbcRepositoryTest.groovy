@@ -1,5 +1,6 @@
 package cz.upce.webapp.dao.stock.repository
 
+import cz.upce.webapp.dao.AbstractJPATest
 import cz.upce.webapp.dao.stock.model.Item
 import cz.upce.webapp.dao.testutil.Creator
 import org.junit.Rule
@@ -10,14 +11,9 @@ import org.springframework.context.annotation.Import
 import spock.lang.Specification
 import spock.lang.Unroll
 
-@DataJpaTest
-@Import([Creator.class, ItemJdbcRepository.class])
-class ItemJdbcRepositoryTest extends Specification {
-
-    @Rule TestName testName = new TestName()
+class ItemJdbcRepositoryTest extends AbstractJPATest {
 
     @Autowired ItemJdbcRepository itemJdbcRepository;
-    @Autowired Creator creator
 
     def "test"() {
 
