@@ -114,10 +114,14 @@ public class CartServiceImpl
 
     public Double getTotalNuts(boolean withTax)
     {
-        return getNutItemsOnly().entrySet().stream()
-                .map(entry -> countPrice(entry.getKey(), entry.getValue(), withTax))
-                .reduce(Double::sum)
-                .orElse(0.0);
+        double sum = 0;
+        Map<Item, Integer> nutItemsOnly = getNutItemsOnly();
+        for (Map.Entry<Item, Integer> itemIntegerEntry : nutItemsOnly.entrySet()) {
+            Item item = itemIntegerEntry.getKey();
+            sum += (withTax?(1+0.01*item.getItemTax()):1)*item.getItemQuantity()*item.getItemPrice()*itemIntegerEntry.getValue();
+
+        }
+        return sum;
     }
 
     public Double getTotalCountryLife(boolean withTax)
