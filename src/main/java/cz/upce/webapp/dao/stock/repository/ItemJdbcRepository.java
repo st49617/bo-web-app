@@ -93,7 +93,7 @@ public class ItemJdbcRepository {
                     resultSet.getInt("item_tax"),
                     s
             );
-            item.setItemId(resultSet.getInt("item_id"));
+            item.setItemId(resultSet.getInt("id"));
             return item;
         }
     }
