@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{fragments/layout.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>Odeslat objednávku</title>
+</head>
+<body>
+<div layout:fragment="content" class="container">
+
+    <div class="jumbotron">
+        <h1>Odeslat objednávku Probio</h1>
+    </div>
+
+    <form name="contactform" method="post" action="send_form_email.php">
+        <table width="450px">
+            <tr>
+                 <td valign="top">
+                  <b>Sent from:</b>
+                 </td>
+                 <td valign="top">
+                      info@pardubicebezobalu.cz
+                 </td>
+            </tr>
+            <tr>
+                 <td valign="top">
+                  <label for="email">CC:</label>
+                 </td>
+                <td valign="top">
+                  info@pardubicebezobalu.cz
+                 </td>
+            </tr>
+            <tr>
+                 <td valign="top">
+                  <label for="comments">Message *</label>
+                 </td>
+                 <td valign="top">
+                  <th:textarea  name="comments" maxlength="1000" cols="55" rows="6">
+                Dobrý den, v příloze zasílám novou objednávku.
+<br>
+<br>                Doručte prosím na následující adresu v Po-Pá 15:00-187:30
+<br>
+<br>                Krámek Bezobalu
+<br>                Nabersi s.r.o.
+<br>                Brozany 7
+<br>                53352 Staré Hradiště
+<br>
+<br>                IČO: 06758622
+<br>
+<br>                Kontakt pro řidiče: 777045366
+<br>
+<br>                Děkujeme vám
+<br>
+<br>                S pozdravem
+<br>
+<br>                Pavel Jetenský
+                </th:textarea>
+                 </td>
+            </tr>
+            <tr>
+                 <td valign="top">
+                  <label for="comments">Attachment: </label>
+                 </td>
+                 <td valign="top">
+                <h2><a href="/download-filled/4">OL_bio_nebio_11_2019.xls</a></h2>
+                 </td>
+            </tr>
+            <tr>
+                 <td colspan="2" style="text-align:center">
+                  <input type="submit" value="Submit">
+                 </td>
+            </tr>
+        </table>
+    </form>
+</div>
+</body>
+</html>
