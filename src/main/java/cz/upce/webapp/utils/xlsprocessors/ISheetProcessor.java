@@ -83,7 +83,7 @@ public interface ISheetProcessor
         List<Item> items = parseItems(fileToParse);
         Map<String, Item> map = new TreeMap<String, Item>();
         for (Item item : items) {
-            String key = item.getItemName() + "_" + item.getItemQuantity().intValue() + (item.bio ? "_BIO" : "");
+            String key = item.getItemName() + "_" + item.getItemQuantity().intValue() + (item.isBio() ? "_BIO" : "");
             map.put(key, item);
         }
         return map;

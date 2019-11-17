@@ -20,17 +20,17 @@ class ItemJdbcRepositoryTest extends AbstractJPATest {
         given:
             // Prepare test data
             creator.save(new Item(itemName: "BIO mandle uzené"))
-            creator.save(new Item(itemName: "CountryLife mandle uzené"))
+            creator.save(new Item(itemName: "CountryLife mandle uzené",bio: true))
             creator.save(new Item(itemName: "mandle"))
 
         expect:
+            //itemJdbcRepository.findAllUsingSearch("BIO").size() == 2
             itemJdbcRepository.findAllUsingSearch("-CountryLife uzené mandle").size() == 1
             itemJdbcRepository.findAllUsingSearch("mandle").size() == 3
             itemJdbcRepository.findAllUsingSearch("mandle uzené").size() == 2
             itemJdbcRepository.findAllUsingSearch("uzené mandle").size() == 2
             itemJdbcRepository.findAllUsingSearch("uzené MANDLE").size() == 2
-            itemJdbcRepository.findAllUsingSearch("MANDLE BIO").size() == 1
+            itemJdbcRepository.findAllUsingSearch("MANDLE BIO").size() == 2
     }
-
 
 }

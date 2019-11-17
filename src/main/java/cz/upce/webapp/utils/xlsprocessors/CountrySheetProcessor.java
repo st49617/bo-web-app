@@ -73,7 +73,7 @@ public class CountrySheetProcessor extends AbstractSheetProcessor
                 }
             }
             Item item = new Item(itemName, itemQuantity, itemPrice, itemTax, null);
-            if ("BIO".equals(values[10])) item.bio = true;
+            if ("BIO".equals(values[10])) item.setBio(true);
             return item;
         } catch (NumberFormatException e) {
             System.out.println("Error:" + e.getMessage());

@@ -17,7 +17,8 @@ import javax.persistence.*;
 @Transactional
 public class Item implements Serializable, Comparable<Item>
 {
-    public boolean bio;
+    @Column
+    private boolean bio;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -164,5 +165,13 @@ public class Item implements Serializable, Comparable<Item>
     @Override
     public int compareTo(Item o) {
         return o.getRowIdx().compareTo(this.getRowIdx());
+    }
+
+    public boolean isBio() {
+        return bio;
+    }
+
+    public void setBio(boolean bio) {
+        this.bio = bio;
     }
 }

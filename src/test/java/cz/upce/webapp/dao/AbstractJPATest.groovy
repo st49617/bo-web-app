@@ -1,6 +1,7 @@
 package cz.upce.webapp.dao
 
 import cz.upce.webapp.dao.stock.StoredFileStorageService
+import cz.upce.webapp.dao.stock.repository.ItemJdbcRepository
 import cz.upce.webapp.dao.testutil.Creator
 import org.junit.Rule
 import org.junit.rules.TestName
@@ -10,7 +11,7 @@ import org.springframework.context.annotation.Import
 import spock.lang.Specification
 
 @DataJpaTest
-@Import([Creator.class, StoredFileStorageService.class])
+@Import([Creator.class, StoredFileStorageService.class, ItemJdbcRepository.class])
 class AbstractJPATest extends Specification{
     @Rule TestName testName = new TestName()
     @Autowired Creator creator

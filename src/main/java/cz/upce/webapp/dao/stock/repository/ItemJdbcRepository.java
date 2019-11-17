@@ -50,13 +50,25 @@ public class ItemJdbcRepository {
         List<String> wordsWithPercents = new ArrayList<>();
         StringBuffer sql = new StringBuffer("select * from item i where 1=1");
         for (String word : words) {
+            String wordToUse;
             if (word.startsWith("-")) {
-                sql.append(" AND NOT(upper(item_name) like ?)");
-                wordsWithPercents.add("%" + word.substring(1).toUpperCase() + "%");
+                wordToUse = word.substring(1).toUpperCase();
+                if (wordToUse.equalsIgnoreCase("BIO")) {
+                    sql.append(" AND NOT(upper(item_name) like ?) AND NOT BIO");
+                } else {
+                    sql.append(" AND (NOT(upper(item_name) like ?))");
+                }
             } else {
-                sql.append(" AND upper(item_name) like ?");
-                wordsWithPercents.add("%" + word.toUpperCase() + "%");
+                wordToUse = word.toUpperCase();
+                if (wordToUse.equalsIgnoreCase("BIO")) {
+                    sql.append(" AND (upper(item_name) like ? OR BIO)");
+                } else {
+                    sql.append(" AND upper(item_name) like ?");
+                }
+
             }
+            wordsWithPercents.add("%" + wordToUse + "%");
+
         }
         String[] wordsWithPercentsArr = wordsWithPercents.toArray(new String[0]);
         return jdbcTemplate.query(sql.toString(),  wordsWithPercentsArr, new ItemRowMapper(supplierMap));

@@ -59,6 +59,7 @@ public class ItemsController
     {
         List<Item> items = itemService.findFilteredByName(productName);
         model.addAttribute("items", items);
+        model.addAttribute("productName", productName);
         return "items/items_list";
     }
 
