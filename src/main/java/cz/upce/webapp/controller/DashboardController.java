@@ -30,6 +30,7 @@ public class DashboardController
 
         this.orderedProductService = orderedProductService;
         this.supplierRepository = supplierRepository;
+
     }
 
     @GetMapping("/dashboard")
@@ -41,6 +42,7 @@ public class DashboardController
                 .map(pr -> new Order(pr.getItem(), pr.getOrderForm().getState(), pr.getAmount())).collect(Collectors.toList());
 
         model.addAttribute("items", orderList);
+
         return "dashboard/dashboard";
     }
 
