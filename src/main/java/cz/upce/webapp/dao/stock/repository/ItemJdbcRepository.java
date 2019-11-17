@@ -86,13 +86,15 @@ public class ItemJdbcRepository {
         @Override
         public Item mapRow(ResultSet resultSet, int i) throws SQLException {
                 Supplier s = supplierMap.get(resultSet.getInt("supplier_id"));
-                return new Item(
-                        resultSet.getString("item_name"),
-                        resultSet.getDouble("item_quantity"),
-                        resultSet.getDouble("item_price"),
-                        resultSet.getInt("item_tax"),
-                        s
-                );
+            Item item = new Item(
+                    resultSet.getString("item_name"),
+                    resultSet.getDouble("item_quantity"),
+                    resultSet.getDouble("item_price"),
+                    resultSet.getInt("item_tax"),
+                    s
+            );
+            item.setItemId(resultSet.getInt("item_id"));
+            return item;
         }
     }
 }
