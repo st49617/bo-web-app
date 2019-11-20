@@ -5,12 +5,17 @@ import cz.upce.webapp.dao.stock.model.Supplier
 import cz.upce.webapp.dao.stock.repository.SupplierRepository
 import spock.lang.Specification
 
-class KServisSheetProcessorTest extends Specification {
+class KServisSheetProcessorTest extends AbstractSheetProcessorTest {
 
     SupplierRepository supplierRepo = Mock()
 
+    @Override
+    protected String getPricelistResourcePath() {
+        return  "/k-servis_cenik_listopad.xlsx"
+    }
+
     def "IterateSheetValues"() {
-        def f = getClass().getResource("/k-servis_cenik_listopad.xlsx").getFile()
+        def f = getClass().getResource(getPricelistResourcePath()).getFile()
         supplierRepo.getOne(_) >> new Supplier()
 
         when:
@@ -34,6 +39,17 @@ class KServisSheetProcessorTest extends Specification {
         item4.itemTax == 15
         item4.itemPrice == 0.087
 
+
+    }
+
+    def "Make Order"() {
+        given:
+        def sheetRead = fillWriteAndReadSheet(new KServisSheetProcessor(supplierRepository: supplierRepo))
+
+        expect:
+        sheetRead.getRow(1).getCell(5).getNumericCellValue() == 3
+        sheetRead.getRow(4).getCell(5).getNumericCellValue() == 1
+        sheetRead.getRow(0).getCell(5).getStringCellValue() == "Objednávám tolik balení"
 
     }
 }

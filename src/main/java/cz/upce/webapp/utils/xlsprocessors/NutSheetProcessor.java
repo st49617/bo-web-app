@@ -1,10 +1,14 @@
 package cz.upce.webapp.utils.xlsprocessors;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import cz.upce.webapp.dao.stock.model.Item;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Component;
 
 /**
@@ -59,4 +63,31 @@ public class NutSheetProcessor extends AbstractSheetProcessor
         return kilos * 1000;
     }
 
+    @Override
+    public Sheet getOrderSheetFromWorkbook(Workbook workbook) {
+        return super.getOrderSheetFromWorkbook(workbook).getWorkbook().getSheet("Objednávka");
+    }
+
+    public int getOrderColumnIdx() {
+        return 5;
+    }
+
+    @Override
+    public void setOrderQuantityForItem(Sheet orderSheet, Item item, Integer orderQuantity) {
+        int rowIdx = 3;
+        boolean finish = false;
+        // We find item based on its name
+        while (!finish) {
+            Row row = orderSheet.getRow(rowIdx);
+            finish = (row == null);
+            if (!finish) {
+                String name = row.getCell(1).getStringCellValue();
+                if (name!=null && name.equals(item.getItemName())) {
+                    row.createCell(getOrderColumnIdx()).setCellValue(orderQuantity);
+                    finish=true;
+                }
+            }
+            rowIdx++;
+        }
+    }
 }

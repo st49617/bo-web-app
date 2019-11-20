@@ -12,7 +12,6 @@ import cz.upce.webapp.dao.stock.model.Item;
 import cz.upce.webapp.dao.stock.model.Supplier;
 import cz.upce.webapp.dao.stock.repository.ItemRepository;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 import org.apache.poi.ss.usermodel.*;
@@ -89,13 +88,17 @@ public interface ISheetProcessor
         return map;
     }
     default Workbook fillOrder(File fileToParse, Map<Item, Integer> orderedItems){
-        ExcelFile parsedExcel = getWorkbook(fileToParse);
+        ExcelFile parsedExcel = getWorkbookFromFile(fileToParse);
         Workbook workbook = parsedExcel.getWorkbook();
+        int orderColumnIdx = getOrderColumnIdx();
+
+        // Fill order not implemented yet
+        if (orderColumnIdx==-1) return workbook;
+        Sheet orderSheet = getOrderSheetFromWorkbook(workbook);
         for (Map.Entry<Item, Integer> itemIntegerEntry : orderedItems.entrySet()) {
-            Sheet sheet = getSheet(workbook);
             Item item = itemIntegerEntry.getKey();
-            Row row = sheet.getRow(item.getRowIdx());
-            row.createCell(4).setCellValue(itemIntegerEntry.getValue());
+            Integer orderQuantity = itemIntegerEntry.getValue();
+            setOrderQuantityForItem(orderSheet, item, orderQuantity);
         }
         try {
             parsedExcel.getExcelFile().close();
@@ -104,12 +107,18 @@ public interface ISheetProcessor
         }
         return parsedExcel.getWorkbook();
     }
-    default List<Item> parseItems(File fileToParse) {
-        Workbook workbook = getWorkbook(fileToParse).getWorkbook();
 
-        Sheet sheet = getSheet(workbook);
+    default void setOrderQuantityForItem(Sheet orderSheet, Item item, Integer orderQuantity) {
+        Row row = orderSheet.getRow(item.getRowIdx());
+        row.createCell(getOrderColumnIdx()).setCellValue(orderQuantity);
+    }
+
+    int getOrderColumnIdx();
+
+    default List<Item> parseItems(File fileToParse) {
+        Sheet sheet = getProductsSheetFromWorkbook(fileToParse);
         Iterator<Row> iterator = sheet.iterator();
-        FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+        FormulaEvaluator formulaEvaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
 
         LOGGER.info("Started parsing the values from the file with:" + this.getClass().getName());
 
@@ -119,7 +128,18 @@ public interface ISheetProcessor
         return validatedItems;
     }
 
-    default Sheet getSheet(Workbook workbook) {
+    default Sheet getProductsSheetFromWorkbook(File fileToParse) {
+        Workbook workbook = getWorkbookFromFile(fileToParse).getWorkbook();
+
+        return getProductsSheetFromWorkbook(workbook);
+    }
+
+    default Sheet getOrderSheetFromWorkbook(Workbook workbook) {
+        // Normally, product sheet is same as order sheet
+        return getProductsSheetFromWorkbook(workbook);
+    }
+
+    default Sheet getProductsSheetFromWorkbook(Workbook workbook) {
         String sheetName = getSheetName();
         Sheet sheet;
         if (sheetName==null) {
@@ -133,7 +153,7 @@ public interface ISheetProcessor
         return sheet;
     }
 
-    default ExcelFile getWorkbook(File fileToParse)  {
+    default ExcelFile getWorkbookFromFile(File fileToParse)  {
         try {
             FileInputStream excelFile = new FileInputStream(fileToParse);
             Workbook workbook;

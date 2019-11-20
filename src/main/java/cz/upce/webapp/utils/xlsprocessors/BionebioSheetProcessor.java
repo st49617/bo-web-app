@@ -68,4 +68,8 @@ public class BionebioSheetProcessor extends AbstractSheetProcessor
         return itemsList;
     }
 
+    public int getOrderColumnIdx() {
+        return 4;
+    }
+
 }

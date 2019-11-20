@@ -5,12 +5,17 @@ import cz.upce.webapp.dao.stock.model.Supplier
 import cz.upce.webapp.dao.stock.repository.SupplierRepository
 import spock.lang.Specification
 
-class NutSheetProcessorTest extends Specification {
+class NutSheetProcessorTest extends AbstractSheetProcessorTest {
 
     SupplierRepository supplierRepo = Mock()
 
+    @Override
+    protected String getPricelistResourcePath() {
+        return  "/orisek_01.03.2019.xls"
+    }
+
     def "IterateSheetValues"() {
-        def f = getClass().getResource("/orisek_01.03.2019.xls").getFile()
+        def f = getClass().getResource(getPricelistResourcePath()).getFile()
         supplierRepo.getOne(_) >> new Supplier()
 
         when:
@@ -33,6 +38,19 @@ class NutSheetProcessorTest extends Specification {
         pinie.itemTax == 15
         pinie.itemPrice == 0.732
 
+
+    }
+
+    def "Make Order"() {
+        given:
+        def processor = new NutSheetProcessor(supplierRepository: supplierRepo)
+        def workbook = processor
+        def sheetRead = fillWriteAndReadSheet(processor)
+        def sheetWithOrder = sheetRead.getWorkbook().getSheet("Objednávka")
+
+        expect:
+        sheetWithOrder.getRow(3).getCell(5).getNumericCellValue() == 3
+        sheetWithOrder.getRow(46).getCell(5).getNumericCellValue() == 1
 
     }
 }

@@ -2,10 +2,13 @@ package cz.upce.webapp.utils.xlsprocessors;
 
 import cz.upce.webapp.dao.stock.model.Item;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,11 +19,6 @@ import java.util.regex.Pattern;
 @Component
 public class KServisSheetProcessor extends AbstractSheetProcessor
 {
-
-    @Override
-    public Integer supplerId() {
-        return 5;
-    }
 
     @Override
     public List<Item> disintegrateIntoItem(int rowIdx, List<String> sheetData) {
@@ -53,4 +51,19 @@ public class KServisSheetProcessor extends AbstractSheetProcessor
         return itemsList;
     }
 
+    @Override
+    public Integer supplerId() {
+        return 5;
+    }
+
+    public int getOrderColumnIdx() {
+        return 5;
+    }
+
+    @Override
+    public Workbook fillOrder(File fileToParse, Map<Item, Integer> orderedItems) {
+        Workbook workbook = super.fillOrder(fileToParse, orderedItems);
+        getProductsSheetFromWorkbook(workbook).getRow(0).getCell(5).setCellValue("Objednávám tolik balení");
+        return workbook;
+    }
 }

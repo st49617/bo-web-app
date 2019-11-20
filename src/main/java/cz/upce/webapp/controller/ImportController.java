@@ -3,13 +3,13 @@ package cz.upce.webapp.controller;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import com.google.common.net.HttpHeaders;
+import cz.upce.webapp.controller.dto.PriceListDTO;
+import cz.upce.webapp.controller.dto.SupplierItemsDTO;
 import cz.upce.webapp.dao.stock.StoredFileStorageService;
 import cz.upce.webapp.dao.stock.model.Item;
 import cz.upce.webapp.dao.stock.model.StoredFile;
@@ -18,6 +18,7 @@ import cz.upce.webapp.dao.stock.repository.ItemRepository;
 import cz.upce.webapp.dao.stock.repository.StoredFileRepository;
 import cz.upce.webapp.dao.stock.repository.SupplierRepository;
 import cz.upce.webapp.service.CartServiceImpl;
+import cz.upce.webapp.service.ProcessorService;
 import cz.upce.webapp.utils.xlsprocessors.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -56,15 +57,6 @@ public class ImportController
     CartServiceImpl cartService;
 
     @Autowired
-    NutSheetProcessor nutSheetProcessor;
-
-    @Autowired
-    BionebioSheetProcessor bionebioSheetProcessor;
-
-    @Autowired
-    CountrySheetProcessor countrySheetProcessor;
-
-    @Autowired
     private ItemRepository itemRepository;
 
     @Autowired
@@ -76,11 +68,9 @@ public class ImportController
     @Autowired
     private StoredFileStorageService storedFileService;
 
-    @GetMapping("/order")
-    public String order()
-    {
-        return "cart/email";
-    }
+    @Autowired
+    private ProcessorService processorService;
+
     @PostMapping("/upload")
     public String singleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("supplierId") Integer supplierId, RedirectAttributes redirectAttributes)
     {
@@ -109,7 +99,7 @@ public class ImportController
             FileManipulator.saveFile(file, UPLOADING_DIR);
             redirectAttributes.addFlashAttribute("message", "File was successfully uploaded!");
             //select processor aligned with combobox value
-            ISheetProcessor sheetProcessor = selectProcessor(supplierId);
+            ISheetProcessor sheetProcessor = processorService.selectProcessor(supplierId);
 
             sheetProcessor.importItemsFromFile(file, UPLOADING_DIR, itemRepository);
 
@@ -126,6 +116,7 @@ public class ImportController
                 }
             }
             s.setPricelist(storedFile);
+            s.setPricelistName(file.getOriginalFilename());
             supplierRepository.save(s);
 
             FileManipulator.deleteFile(file, UPLOADING_DIR);
@@ -147,19 +138,6 @@ public class ImportController
         return "importer/notifier";
     }
 
-    @Autowired
-    List<AbstractSheetProcessor> processors;
-
-    private ISheetProcessor selectProcessor(Integer supplierId)
-    {
-        for (AbstractSheetProcessor processor : processors) {
-            if (processor.supplerId().equals(supplierId)) {
-                return processor;
-            }
-        }
-        // Lets select first one
-        return processors.get(0);
-    }
 
 
     @GetMapping("/download/{supplierId}")
@@ -177,28 +155,15 @@ public class ImportController
     public ResponseEntity<Resource> downloadFilledFile(@PathVariable Integer supplierId) {
 
         try {
-
-            // Load file from database
-            StoredFile dbFile = storedFileService.getFile(supplierRepository.getOne(supplierId).getPricelist().getId());
-
-        String filename = UPLOADING_DIR  + RandomStringUtils.randomAlphabetic(8)+"-" + dbFile.getFileName();
-            FileUtils.writeByteArrayToFile(new File(filename), dbFile.getData());
-
-        Map<Item, Integer> orderedItems = cartService.getBionebioItemsOnly();
-        Workbook workbook = bionebioSheetProcessor.fillOrder(new File(filename), orderedItems);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            workbook.write(bos);
-        } finally {
-            bos.close();
-        }
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(dbFile.getContentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + dbFile.getFileName() + "\"")
-                .body(new ByteArrayResource(bos.toByteArray()));
+            PriceListDTO priceListDTO = processorService.getFilledPriceListWithOrder(supplierId);
+            return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(priceListDTO.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + priceListDTO.getFilename() + "\"")
+                .body(new ByteArrayResource(priceListDTO.getContent()));
         } catch (IOException e) {
             throw new IllegalStateException("Cannot write file", e);
         }
 
     }
+
 }

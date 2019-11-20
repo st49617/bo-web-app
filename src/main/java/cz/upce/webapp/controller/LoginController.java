@@ -1,8 +1,10 @@
 package cz.upce.webapp.controller;
 
+import cz.upce.webapp.dao.stock.repository.SupplierRepository;
 import cz.upce.webapp.dao.users.model.User;
 import cz.upce.webapp.service.SecurityServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,10 +46,14 @@ public class LoginController
         return "homepage/login";
     }
 
+    @Autowired
+    SupplierRepository supplierRepository;
+
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String loginGet(Model model)
     {
         User user = new User();
+        model.addAttribute("suppliers", supplierRepository.findAll(Sort.by(Sort.Direction.ASC, "name")));
         model.addAttribute("user", user);
         return "homepage/login";
     }

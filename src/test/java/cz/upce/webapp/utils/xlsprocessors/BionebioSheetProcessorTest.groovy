@@ -1,20 +1,20 @@
 package cz.upce.webapp.utils.xlsprocessors
 
-import cz.upce.webapp.dao.stock.model.Item
+
 import cz.upce.webapp.dao.stock.model.Supplier
 import cz.upce.webapp.dao.stock.repository.SupplierRepository
-import org.apache.poi.ss.usermodel.Workbook
-import spock.lang.Specification
 
-import static cz.upce.webapp.utils.xlsprocessors.AbstractSheetProcessor.EUR_TO_CZK
-import static cz.upce.webapp.utils.xlsprocessors.BionebioSheetProcessor.EUR_TO_CZK
-
-class BionebioSheetProcessorTest extends Specification {
+class BionebioSheetProcessorTest extends AbstractSheetProcessorTest {
 
     SupplierRepository supplierRepo = Mock()
 
+    @Override
+    protected String getPricelistResourcePath() {
+        return  "/OL_bio_nebio_11_2019.xls"
+    }
+
     def "IterateSheetValues"() {
-        def f = getClass().getResource("/OL_bio_nebio_11_2019.xls").getFile()
+        def f = getClass().getResource(getPricelistResourcePath()).getFile()
         supplierRepo.getOne(_) >> new Supplier()
 
         when:
@@ -41,25 +41,14 @@ class BionebioSheetProcessorTest extends Specification {
     }
 
     def "Make Order"() {
-        def f = getClass().getResource("/OL_bio_nebio_11_2019.xls").getFile()
+        given:
+        def sheetRead = fillWriteAndReadSheet(new BionebioSheetProcessor(supplierRepository: supplierRepo))
 
-        def processor = new BionebioSheetProcessor(supplierRepository: supplierRepo)
-        def items = processor.parseItems(new File(f))
-
-        supplierRepo.getOne(_) >> new Supplier()
-
-        when:
-        Map<Item, Integer> orderedItems = new TreeMap<>();
-        orderedItems.put(items.get(0), 3)
-        orderedItems.put(items.get(3), 1)
-
-        Workbook workbook = processor.fillOrder(new File(f), orderedItems)
-        def outputStream = new FileOutputStream("/data/tmp/OL_bio_nebio_11_2019.xls")
-        workbook.write(outputStream)
-
-        outputStream.close()
-        then:
-        true
+        expect:
+        sheetRead.getRow(5).getCell(4).getNumericCellValue() == 3
+        sheetRead.getRow(8).getCell(4).getNumericCellValue() == 1
 
     }
+
+
 }
