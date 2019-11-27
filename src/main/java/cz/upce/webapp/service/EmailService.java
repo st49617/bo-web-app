@@ -24,22 +24,22 @@ public class EmailService {
 
     public String sendMailWithAttachment(final String from, String to, final String cc, String subject, String body, final String attachmentFilename, String contentType, byte[] attachment)
     {
-        MimeMessagePreparator preparator = new MimeMessagePreparator()
-        {
-            public void prepare(MimeMessage mimeMessage) throws Exception
-            {
-                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-                helper.setText(body);
-                helper.setFrom(from);
-                helper.setTo(to);
-                if (!StringUtils.isEmpty(cc)) {
-                    helper.setCc(cc);
-                }
-                if (!StringUtils.isEmpty(subject)) {
-                    helper.setSubject(subject);
-                }
-                helper.addAttachment(attachmentFilename, new ByteArrayResource(attachment), contentType);
+        MimeMessagePreparator preparator = mimeMessage -> {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+            helper.setText(body);
+            helper.setFrom(from);
+            helper.setTo(to);
+
+            if (!StringUtils.isEmpty(cc)) {
+                helper.setCc(cc);
             }
+            if (!StringUtils.isEmpty(subject)) {
+                helper.setSubject(subject);
+            }
+            helper.addAttachment(
+                    attachmentFilename,
+                    new ByteArrayResource(attachment),
+                    contentType);
         };
 
         try {
