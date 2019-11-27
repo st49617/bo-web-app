@@ -30,7 +30,6 @@ public class CartController
     @Autowired private ItemServiceImpl itemService;
     @Autowired private SecurityServiceImpl securityService;
     @Autowired private SupplierRepository supplierRepository;
-    @Autowired private EmailService emailService;
     @Autowired private ProcessorService processorService;
 
     @GetMapping("/cart")
@@ -125,7 +124,6 @@ public class CartController
         try {
             PriceListDTO priceListDTO = processorService.getFilledPriceListWithOrder(supplierId);
             String attachmentFilename;
-            message = emailService.sendMailWithAttachment(from, to, cc, subject, body, priceListDTO.getFilename(), priceListDTO.getContentType(), priceListDTO.getContent());
             cartService.removeSupplier(supplierId);
         } catch (IOException e) {
             e.printStackTrace();
