@@ -33,7 +33,7 @@ public class LoginUIIntegrationTest extends Specification
     {
         given:
             def password = "\$2a\$12" + "\$TNH.f4YLpJgCVduQPUejUOuIifkJ5T7DjINwgslGI5s4u7.Plm6d."
-            creator.save(new User(email: "tester2@test.us", password: password))
+            creator.save(new User(email: "tester2@test.cz", password: password))
         when:
             def actualDashboardTitle = loginPage
                     .visit()
