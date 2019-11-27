@@ -10,7 +10,10 @@ import org.subethamail.wiser.Wiser
 import org.subethamail.wiser.WiserMessage
 import spock.lang.Specification
 
-@SpringBootTest(properties = [ "spring.mail.host=localhost","spring.mail.port=8085" ])
+@SpringBootTest(
+        properties = [
+                "spring.mail.host=localhost",
+                "spring.mail.port=8085" ])
 class EmailServiceTest extends Specification {
 
     Wiser wiser = new Wiser(8085)
@@ -20,12 +23,6 @@ class EmailServiceTest extends Specification {
 
     void setup() {
         wiser.start()
-    }
-
-    def "test"() {
-        expect:
-        applicationContext.getEnvironment().getProperty("spring.mail.host") == "localhost"
-        applicationContext.getEnvironment().getProperty("spring.mail.port") == 8085
     }
 
     @Autowired EmailService emailService
@@ -40,11 +37,16 @@ class EmailServiceTest extends Specification {
                     "Tady Pavel", "test.txt",
                     "plain/text", content)
         def messages = wiser.getMessages()
-        def messageParser = new MimeMessageParser(messages[0].getMimeMessage())
+        def messageParser = new MimeMessageParser(
+                messages[0].getMimeMessage()
+        )
         messageParser.parse()
         then:
-            messages[0].getEnvelopeSender() == "info@pardubicebezobalu.cz"
+            messageParser.getFrom() == "info@pardubicebezobalu.cz"
             messageParser.getPlainContent() == "Tady Pavel"
+            messageParser
+                    .findAttachmentByName("test.txt")
+                    .data == ['a','b','c']
 
     }
 

@@ -21,7 +21,7 @@ abstract class AbstractSheetProcessorTest extends Specification{
         orderedItems.put(items.get(3), 1)
 
         Workbook workbook = processor.fillOrder(new File(f), orderedItems)
-        def outputFilePath = "/data/tmp" + filePath
+        def outputFilePath = System.getProperty("user.dir") + filePath
         def outputStream = new FileOutputStream(outputFilePath)
         workbook.write(outputStream)
         outputStream.close()
