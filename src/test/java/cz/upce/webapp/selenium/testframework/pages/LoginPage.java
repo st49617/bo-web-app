@@ -21,7 +21,7 @@ public class LoginPage {
     @FindBy(id = "inputEmail")
     WebElement inputEmail;
 
-    @FindBy(id = "inputPasswordDDDD")
+    @FindBy(id = "inputPassword")
     WebElement inputPassword;
 
     public String getLoginFormName() {
