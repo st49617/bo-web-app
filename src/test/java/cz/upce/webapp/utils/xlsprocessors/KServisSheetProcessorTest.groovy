@@ -23,6 +23,12 @@ class KServisSheetProcessorTest extends AbstractSheetProcessorTest {
         then:
 
         items.size() > 0
+        def itemPara = items["Para ořechy_20000"]
+        itemPara.itemTax == 15
+        itemPara.itemPrice == 0.229
+        itemPara.rowIdx == 144
+
+
         def item1 = items["Aloe Vera plátky_20000"]
         item1.itemTax == 15
         item1.itemPrice == 0.204
@@ -44,11 +50,12 @@ class KServisSheetProcessorTest extends AbstractSheetProcessorTest {
 
     def "Make Order"() {
         given:
-        def sheetRead = fillWriteAndReadSheet(new KServisSheetProcessor(supplierRepository: supplierRepo))
+        def sheetRead = fillWriteAndReadSheet(new KServisSheetProcessor(supplierRepository: supplierRepo), 102)
 
         expect:
         sheetRead.getRow(1).getCell(5).getNumericCellValue() == 3
         sheetRead.getRow(4).getCell(5).getNumericCellValue() == 1
+        sheetRead.getRow(144).getCell(5).getNumericCellValue() == 1
         sheetRead.getRow(0).getCell(5).getStringCellValue() == "Objednávám tolik balení"
 
     }

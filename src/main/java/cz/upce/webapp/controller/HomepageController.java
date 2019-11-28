@@ -19,8 +19,6 @@ public class HomepageController
     @GetMapping("/")
     public String getHomepage(Model model)
     {
-        User user = new User();
-        model.addAttribute("user", user);
-        return "homepage/login";
+        return "redirect:/items";
     }
 }

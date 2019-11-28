@@ -7,7 +7,7 @@ import org.apache.poi.ss.usermodel.Workbook
 import spock.lang.Specification;
 
 abstract class AbstractSheetProcessorTest extends Specification{
-    protected Sheet fillWriteAndReadSheet(AbstractSheetProcessor processor) {
+    protected Sheet fillWriteAndReadSheet(AbstractSheetProcessor processor, Integer additionalParsedIdx = null) {
         def sheetRead
         def filePath = getPricelistResourcePath()
         def f = getClass().getResource(filePath).getFile()
@@ -19,6 +19,9 @@ abstract class AbstractSheetProcessorTest extends Specification{
         Map<Item, Integer> orderedItems = new TreeMap<>();
         orderedItems.put(items.get(0), 3)
         orderedItems.put(items.get(3), 1)
+        if (additionalParsedIdx!=null) {
+            orderedItems.put(items.get(additionalParsedIdx), 1)
+        }
 
         Workbook workbook = processor.fillOrder(new File(f), orderedItems)
         def outputFilePath = System.getProperty("user.dir") + filePath

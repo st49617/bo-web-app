@@ -81,9 +81,12 @@ public interface ISheetProcessor
     default Map<String, Item> parseItemsAsMap(File fileToParse) throws IOException {
         List<Item> items = parseItems(fileToParse);
         Map<String, Item> map = new TreeMap<String, Item>();
+        int parsedIdx = 0;
         for (Item item : items) {
             String key = item.getItemName() + "_" + item.getItemQuantity().intValue() + (item.isBio() ? "_BIO" : "");
+            item.parsedIdx = parsedIdx;
             map.put(key, item);
+            parsedIdx++;
         }
         return map;
     }

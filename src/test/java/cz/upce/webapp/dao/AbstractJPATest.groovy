@@ -12,7 +12,7 @@ import spock.lang.Specification
 
 @DataJpaTest
 @Import([Creator.class, StoredFileStorageService.class, ItemJdbcRepository.class])
-class AbstractJPATest extends Specification{
+abstract class AbstractJPATest extends Specification{
     @Rule TestName testName = new TestName()
     @Autowired Creator creator
 }
