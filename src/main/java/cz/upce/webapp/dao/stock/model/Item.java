@@ -17,7 +17,9 @@ import javax.persistence.*;
 @Transactional
 public class Item implements Serializable, Comparable<Item>
 {
-    public int parsedIdx;
+    @Column
+    public Integer parsedIdx;
+
     @Column
     private boolean bio;
 
