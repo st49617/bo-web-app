@@ -34,12 +34,11 @@ public class LoginUIIntegrationTest extends Specification
             def password = "\$2a\$12" + "\$TNH.f4YLpJgCVduQPUejUOuIifkJ5T7DjINwgslGI5s4u7.Plm6d."
             creator.save(new User(email: "tester2@test.cz", password: password))
         when:
-            def actualDashboardTitle = loginPage
+            loginPage
                     .visit()
                     .submitLoginForm("tester2@test.cz", "test")
-                    .title
         then:
-            driver.title == actualDashboardTitle
+            driver.title == "Items"
     }
 /*
     @Test

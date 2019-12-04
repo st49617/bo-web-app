@@ -5,12 +5,17 @@ import cz.upce.webapp.dao.stock.model.Supplier
 import cz.upce.webapp.dao.stock.repository.SupplierRepository
 import spock.lang.Specification
 
-class CountryLifeProcessorTest extends Specification {
+class CountryLifeProcessorTest extends AbstractSheetProcessorTest {
 
     SupplierRepository supplierRepo = Mock()
 
+    @Override
+    protected String getPricelistResourcePath() {
+        return  "/CountryLife_Objednavkovy_cenik_VO.xls"
+    }
+
     def "IterateSheetValues"() {
-        def f = getClass().getResource("/CountryLife_Objednavkovy_cenik_VO.xls").getFile()
+        def f = getClass().getResource(getPricelistResourcePath()).getFile()
         supplierRepo.getOne(_) >> new Supplier()
 
         when:
@@ -30,9 +35,15 @@ class CountryLifeProcessorTest extends Specification {
         merunky.itemQuantity == 12500
         merunky.itemTax == 15
         merunky.itemPrice == 0.129
+    }
 
+    def "Make Order"() {
+        given:
+        def sheetRead = fillWriteAndReadSheet(new CountrySheetProcessor(supplierRepository: supplierRepo))
 
-
+        expect:
+        sheetRead.getRow(13).getCell(22).getNumericCellValue() == 3
+        sheetRead.getRow(19).getCell(22).getNumericCellValue() == 1
 
     }
 }

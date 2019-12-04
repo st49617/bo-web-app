@@ -3,17 +3,18 @@ package cz.upce.webapp.utils.xlsprocessors
 
 import cz.upce.webapp.dao.stock.model.Supplier
 import cz.upce.webapp.dao.stock.repository.SupplierRepository
-import spock.lang.Specification
 
-import static cz.upce.webapp.utils.xlsprocessors.AbstractSheetProcessor.EUR_TO_CZK
-import static cz.upce.webapp.utils.xlsprocessors.BionebioSheetProcessor.EUR_TO_CZK
-
-class BionebioSheetProcessorTest extends Specification {
+class BionebioSheetProcessorTest extends AbstractSheetProcessorTest {
 
     SupplierRepository supplierRepo = Mock()
 
+    @Override
+    protected String getPricelistResourcePath() {
+        return  "/OL_bio_nebio_11_2019.xls"
+    }
+
     def "IterateSheetValues"() {
-        def f = getClass().getResource("/OL_bio_nebio_11_2019.xls").getFile()
+        def f = getClass().getResource(getPricelistResourcePath()).getFile()
         supplierRepo.getOne(_) >> new Supplier()
 
         when:
@@ -38,4 +39,16 @@ class BionebioSheetProcessorTest extends Specification {
 
 
     }
+
+    def "Make Order"() {
+        given:
+        def sheetRead = fillWriteAndReadSheet(new BionebioSheetProcessor(supplierRepository: supplierRepo))
+
+        expect:
+        sheetRead.getRow(5).getCell(4).getNumericCellValue() == 3
+        sheetRead.getRow(8).getCell(4).getNumericCellValue() == 1
+
+    }
+
+
 }

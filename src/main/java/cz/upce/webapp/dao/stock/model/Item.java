@@ -15,10 +15,13 @@ import javax.persistence.*;
 @Entity(name = "Item")
 @Table(name = "item")
 @Transactional
-public class Item implements Serializable
+public class Item implements Serializable, Comparable<Item>
 {
-    public int rowIdx;
-    public boolean bio;
+    @Column
+    public Integer parsedIdx;
+
+    @Column
+    private boolean bio;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,8 +43,11 @@ public class Item implements Serializable
 
     @ManyToOne(cascade = CascadeType.MERGE, optional = false)
     private Supplier supplier;
+    @Column
+    private Integer rowIdx;
 
-    public Item() { }
+    public Item() {
+    }
 
     public Item(String itemName, Double itemQuantity, Double itemPrice, Integer itemTax, Supplier supplier)
     {
@@ -149,5 +155,26 @@ public class Item implements Serializable
                 ", itemPrice=" + itemPrice +
                 ", itemTax=" + itemTax +
                 '}';
+    }
+
+    public Integer getRowIdx() {
+        return rowIdx;
+    }
+
+    public void setRowIdx(Integer rowIdx) {
+        this.rowIdx = rowIdx;
+    }
+
+    @Override
+    public int compareTo(Item o) {
+        return o.getRowIdx().compareTo(this.getRowIdx());
+    }
+
+    public boolean isBio() {
+        return bio;
+    }
+
+    public void setBio(boolean bio) {
+        this.bio = bio;
     }
 }

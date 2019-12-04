@@ -3,14 +3,18 @@ package cz.upce.webapp.utils.xlsprocessors
 
 import cz.upce.webapp.dao.stock.model.Supplier
 import cz.upce.webapp.dao.stock.repository.SupplierRepository
-import spock.lang.Specification
 
-class ProbioSheetProcessorTest extends Specification {
+class ProbioSheetProcessorTest extends AbstractSheetProcessorTest {
 
     SupplierRepository supplierRepo = Mock()
 
+    @Override
+    protected String getPricelistResourcePath() {
+        return  "/190901_cenik_PROBIO_zari_rijen_2019.xls"
+    }
+
     def "IterateSheetValues"() {
-        def f = getClass().getResource("/190901_cenik_PROBIO_zari_rijen_2019.xls").getFile()
+        def f = getClass().getResource(getPricelistResourcePath()).getFile()
         supplierRepo.getOne(_) >> new Supplier()
 
         when:
@@ -27,7 +31,15 @@ class ProbioSheetProcessorTest extends Specification {
         item2.itemQuantity == 2000
         item2.itemTax == 15
         item2.itemPrice == 0.156
+    }
 
+    def "Make Order"() {
+        given:
+        def sheetRead = fillWriteAndReadSheet(new ProbioSheetProcessor(supplierRepository: supplierRepo))
+
+        expect:
+        sheetRead.getRow(4).getCell(14).getNumericCellValue() == 3
+        sheetRead.getRow(7).getCell(14).getNumericCellValue() == 1
 
     }
 }
